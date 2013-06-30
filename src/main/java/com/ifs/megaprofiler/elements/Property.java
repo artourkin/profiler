@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.ifs.ultimatemetadataprofiler.elements;
+package com.ifs.megaprofiler.elements;
 
 /**
  *
@@ -20,6 +20,18 @@ public class Property {
     public Type type;
 
     public Property() {
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+
+    public void setType(Type type) {
+        this.type = type;
     }
 
     public Property(java.lang.String key, java.lang.String value, Type type) {

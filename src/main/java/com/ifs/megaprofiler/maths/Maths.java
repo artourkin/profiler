@@ -2,10 +2,10 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.ifs.ultimatemetadataprofiler.maths;
+package com.ifs.megaprofiler.maths;
 
-import com.ifs.ultimatemetadataprofiler.elements.Document;
-import com.ifs.ultimatemetadataprofiler.elements.Node;
+import com.ifs.megaprofiler.elements.Document;
+import com.ifs.megaprofiler.elements.Node;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -42,17 +42,19 @@ public class Maths {
                 merge(tmp, n);
             } else {
                 n1.nodes.add(tmp);
+                n1.increaseCount();
             }
         }
-       // n2 = n1;
+        // n2 = n1;
         return n1;
 
     }
-     public static Document merge(Document d1, Document d2) {
+
+    public static Document merge(Document d1, Document d2) {
         Document d;
         d = new Document();
-        d.root=merge(d1.root, d2.root);
-        d.name= "("+d1.name+"+" + d2.name + ")";
+        d.root = merge(d1.root, d2.root);
+        d.name = "(" + d1.name + "+" + d2.name + ")";
         return d;
     }
 }
