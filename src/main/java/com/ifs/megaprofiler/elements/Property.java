@@ -4,6 +4,9 @@
  */
 package com.ifs.megaprofiler.elements;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+
 /**
  *
  * @author artur
@@ -39,5 +42,28 @@ public class Property {
         this.value = value;
         this.type = type;
     }
-    
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(13, 37).append(value).append(key)
+                .toHashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (obj == this) {
+            return true;
+        }
+        if (!(obj instanceof Property)) {
+            return false;
+        }
+        Property p = (Property) obj;
+        if (this.key.equals(p.key) && this.value.equals(p.value)) {
+            return true;
+        }
+        return false;
+    }
 }

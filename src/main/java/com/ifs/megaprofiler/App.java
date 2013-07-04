@@ -22,51 +22,50 @@ import org.dom4j.io.XMLWriter;
  */
 public class App {
 
-  public static void main(String[] args) {
-    String path = "/home/artur/Data/1/";
+    public static void main(String[] args) {
+        String path = "/home/artur/rnd/data/5675-29-20060608131927-00003-kb-prod-har-002.kb.dk.arc/";
 
-    FileSystemGatherer fsgatherer = new FileSystemGatherer(path);
-    Aggregator aggregator = new Aggregator();
-    long count = fsgatherer.getCount();
-    System.out.println(count);
-    List<Document> docs = new ArrayList<Document>();
-    while (fsgatherer.getRemaining() > 0) {
-      docs.add(aggregator.parseDocument(fsgatherer.getNext(1).get(0)));
-      //TODO DigesterContext mixes nodes :( . bad output  
-    }
-    //Document result = Maths.merge(docs);
+        FileSystemGatherer fsgatherer = new FileSystemGatherer(path);
+        Aggregator aggregator = new Aggregator();
+        long count = fsgatherer.getCount();
+        System.out.println(count);
+        List<Document> docs = new ArrayList<Document>();
+        while (fsgatherer.getRemaining() > 0) {
+            docs.add(aggregator.parseDocument(fsgatherer.getNext(1).get(0)));
+        }
+        Document result = Maths.merge(docs);
 
-    org.dom4j.Document output = XmlSerialiser.createDocument(docs.get(0));
-
-
-    // lets write to a file
-    XMLWriter writer;
-    try {
-      writer = new XMLWriter(
-              new FileWriter("output.xml"));
-
-      writer.write(output);
-      writer.close();
+        org.dom4j.Document output = XmlSerialiser.createDocument(result);
 
 
-      // Pretty print the document to System.out
-      OutputFormat format = OutputFormat.createPrettyPrint();
-      writer = new XMLWriter(System.out, format);
-      writer.write(output);
+        // lets write to a file
+        XMLWriter writer;
+        try {
+            writer = new XMLWriter(
+                    new FileWriter("output.xml"));
+
+            writer.write(output);
+            writer.close();
 
 
-    } catch (IOException ex) {
-      Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
-    }
+            // Pretty print the document to System.out
+            OutputFormat format = OutputFormat.createPrettyPrint();
+            writer = new XMLWriter(System.out, format);
+            writer.write(output);
+
+
+        } catch (IOException ex) {
+            Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
 
 
-    //    FileWriter out;
+        //    FileWriter out;
 //    try {
 //      out = new FileWriter("foo.xml");
 //      output.write(out);
 //    } catch (IOException ex) {
 //      Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
 //    }
-  }
+    }
 }
