@@ -26,6 +26,7 @@ public class Node {
 	public Node() {
 		this.properties=new ArrayList<Property>();
 		this.nodes=new ArrayList<Node>();
+        this.count = 1;
 	}
 
 	public Node(String name, List<Property> properties, String value, List<Node> nodes) {
@@ -97,6 +98,7 @@ public class Node {
 		if (!(obj instanceof Node)) {
 			return false;
 		}
+        //return true;
 
 		Node n = (Node) obj;
 		return new EqualsBuilder().append(this.value, n.value)

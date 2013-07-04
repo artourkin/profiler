@@ -17,44 +17,58 @@ import java.util.Queue;
  */
 public class Maths {
 
-    public static List<Node> breadthFirstSearch(Node node) {
-        List<Node> result = new LinkedList<Node>();
-        Queue<Node> q = new LinkedList<Node>();
-        q.add(node);
+  public static List<Node> breadthFirstSearch(Node node) {
+    List<Node> result = new LinkedList<Node>();
+    Queue<Node> q = new LinkedList<Node>();
+    q.add(node);
 
-        while (!q.isEmpty()) {
-            Node n = q.poll();
-            result.add(n);
-            for (Node n2 : n.nodes) {
-                q.add(n2);
-            }
-        }
-        return result;
+    while (!q.isEmpty()) {
+      Node n = q.poll();
+      result.add(n);
+      for (Node n2 : n.nodes) {
+        q.add(n2);
+      }
     }
+    return result;
+  }
 
-    public static Node merge(Node n1, Node n2) {
-        if (!n1.equals(n2)) {
-            return null;
-        }
-        for (Node tmp : n2.nodes) {
-            if (n1.nodes.contains(tmp)) {
-                Node n = n1.nodes.get(n1.nodes.indexOf(tmp));
-                merge(tmp, n);
-            } else {
-                n1.nodes.add(tmp);
-                n1.increaseCount();
-            }
-        }
-        // n2 = n1;
-        return n1;
-
+  public static Node merge(Node n1, Node n2) {
+    if (n1 == null || n2 == n1 ) {
+      return null;
     }
-
-    public static Document merge(Document d1, Document d2) {
-        Document d;
-        d = new Document();
-        d.root = merge(d1.root, d2.root);
-        d.name = "(" + d1.name + "+" + d2.name + ")";
-        return d;
+    for (Node tmp : n2.nodes) {
+      if (n1.nodes.contains(tmp)) {
+        Node n = n1.nodes.get(n1.nodes.indexOf(tmp));
+        merge(tmp, n);
+      } else {
+        n1.nodes.add(tmp);
+        n1.increaseCount();
+      }
     }
+    // n2 = n1;
+    return n1;
+  }
+
+  public static Document merge(Document d1, Document d2) {
+    Document d;
+    d = new Document();
+    d.root = merge(d1.root, d2.root);
+    d.name = "(" + d1.name + "+" + d2.name + ")";
+    return d;
+  }
+
+  public static Document merge(List<Document> list) {
+    if (list.size() == 0) {
+      return null;
+    }
+    if (list.size() == 1) {
+      return list.get(0);
+    }
+    Document result = list.get(0);
+    list.remove(0);
+    for (Document document : list) {
+      result = merge(result, document);
+    }
+    return result;
+  }
 }

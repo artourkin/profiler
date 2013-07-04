@@ -39,4 +39,5 @@ public class Property {
         this.value = value;
         this.type = type;
     }
+    
 }
