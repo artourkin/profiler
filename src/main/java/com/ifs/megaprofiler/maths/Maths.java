@@ -17,68 +17,68 @@ import java.util.Queue;
  */
 public class Maths {
 
-    public static List<Node> breadthFirstSearch(Node node) {
-        List<Node> result = new LinkedList<Node>();
-        Queue<Node> q = new LinkedList<Node>();
-        q.add(node);
+  public static List<Node> breadthFirstSearch(Node node) {
+    List<Node> result = new LinkedList<Node>();
+    Queue<Node> q = new LinkedList<Node>();
+    q.add(node);
 
-        while (!q.isEmpty()) {
-            Node n = q.poll();
-            result.add(n);
-            for (Node n2 : n.nodes) {
-                q.add(n2);
-            }
-        }
-        return result;
+    while (!q.isEmpty()) {
+      Node n = q.poll();
+      result.add(n);
+      for (Node n2 : n.nodes) {
+        q.add(n2);
+      }
     }
+    return result;
+  }
 
-    public static Node merge(Node n1, Node n2) {
-        if (n1 == null || n2 == n1) {
-            return null;
-        }
-        Node result = new Node();
-        result.properties.addAll(n1.properties);
-        result.setName(n1.name);
-        result.nodes.addAll(n1.nodes);
-        result.count=n1.count;
-        if (result.name.equals("fits"))
-            result.increaseCount();
-        for (Node n2sub : n2.nodes) {
-            if (result.nodes.contains(n2sub)) {
-                Node resultsub = result.nodes.get(result.nodes.indexOf(n2sub));
-                result.nodes.remove(resultsub);
-                resultsub.increaseCount();
-                resultsub = merge(resultsub, n2sub);
-               // merge(resultsub, n2sub);
-                result.nodes.add(resultsub);
-            } else {
-                result.nodes.add(n2sub);
-                //result.increaseCount();
-            }
-        }
-        return result;
+  public static Node merge(Node n1, Node n2) {
+    if (n1 == null || n2 == n1) {
+      return null;
     }
+    Node result = new Node();
+    result.properties.addAll(n1.properties);
+    result.setName(n1.name);
+    result.nodes.addAll(n1.nodes);
+    result.count = n1.count;
+    result.value = n1.value;
+    if (result.name.equals("fits")) {
+      result.increaseCount();
+    }
+    for (Node n2sub : n2.nodes) {
+      int n2subindex = result.nodes.indexOf(n2sub);
+      if (n2subindex >= 0) { // we found a node   //&& result.nodes.contains(n2sub)) {
+        Node resultsub = result.nodes.get(n2subindex);//result.nodes.get(result.nodes.indexOf(n2sub));
+        resultsub.increaseCount();
+        resultsub = merge(resultsub, n2sub);
+        result.nodes.set(n2subindex, resultsub);
+      } else {
+        result.nodes.add(n2sub);
+      }
+    }
+    return result;
+  }
 
-    public static Document merge(Document d1, Document d2) {
-        Document d;
-        d = new Document();
-        d.root = merge(d1.root, d2.root);
-        d.name = "(" + d1.name + "+" + d2.name + ")";
-        return d;
-    }
+  public static Document merge(Document d1, Document d2) {
+    Document d;
+    d = new Document();
+    d.root = merge(d1.root, d2.root);
+    d.name = "(" + d1.name + "+" + d2.name + ")";
+    return d;
+  }
 
-    public static Document merge(List<Document> list) {
-        if (list.isEmpty()) {
-            return null;
-        }
-        if (list.size() == 1) {
-            return list.get(0);
-        }
-        Document result = list.get(0);
-        list.remove(0);
-        for (Document document : list) {
-            result = merge(result, document);
-        }
-        return result;
+  public static Document merge(List<Document> list) {
+    if (list.isEmpty()) {
+      return null;
     }
+    if (list.size() == 1) {
+      return list.get(0);
+    }
+    Document result = list.get(0);
+    list.remove(0);
+    for (Document document : list) {
+      result = merge(result, document);
+    }
+    return result;
+  }
 }
