@@ -36,6 +36,13 @@ public class Node {
         this.count = 1;
         this.name = name;
     }
+    public Node(Node original){
+        this.properties = original.properties;
+        this.value = original.value;
+        this.nodes = original.nodes;
+        this.count = original.count;
+        this.name = original.name;
+    }
 
     public void increaseCount() {
         this.count++;

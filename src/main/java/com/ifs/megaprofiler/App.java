@@ -9,13 +9,6 @@ import com.ifs.megaprofiler.core.FileSystemGatherer;
 import com.ifs.megaprofiler.elements.Document;
 import com.ifs.megaprofiler.helper.XmlSerialiser;
 import com.ifs.megaprofiler.maths.Maths;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.dom4j.io.OutputFormat;
-import org.dom4j.io.XMLWriter;
 
 /**
  * Hello world! Oh yes! Hello, world :D
@@ -23,58 +16,44 @@ import org.dom4j.io.XMLWriter;
  */
 public class App {
 
-  public static void main(String[] args) {
-    String path = "/home/artur/Data/1/";
-
-    FileSystemGatherer fsgatherer = new FileSystemGatherer(path);
-    Aggregator aggregator = new Aggregator();
-    long count = fsgatherer.getCount();
-    System.out.println(count);
-    Document result = null;
-    List<Document> chunk = new ArrayList<Document>();
-    int chunkmaxsize = 1000;
-    while (fsgatherer.hasNext()) {
-      if (chunk.size() < chunkmaxsize) {
-        chunk.add(aggregator.parseDocument(fsgatherer.getNext()));
-      } else {
-        if (result == null) {
-          result = Maths.merge(chunk);
-        } else {
-          result = Maths.merge(result, Maths.merge(chunk));
+    public static void main(String[] args) {
+        if (args.length < 1 || args[0] == null) {
+            System.out.println("Please provide a path to FITS results");
+            return;
         }
-        chunk.clear();
-      }
+        long start = System.currentTimeMillis();
+        String path = args[0];
+        FileSystemGatherer fsgatherer = new FileSystemGatherer(path);
+        Aggregator aggregator = new Aggregator();
+        long count = fsgatherer.getCount();
+        System.out.println(count);
+        Document result = new Document();
+        List<Document> chunk = new ArrayList<Document>();
+        int chunkmaxsize = 1000;
+        int totalcount = 0;
+        while (true) {
+            //             result = Maths.merge(result, aggregator.parseDocument(fsgatherer.getNext()));
+            totalcount++;
+            chunk.add(aggregator.parseDocument(fsgatherer.getNext()));
+            if (totalcount % chunkmaxsize == 0) {
+                System.out.println("Processed objects: " + totalcount);
+                Document tmp = Maths.merge(chunk);
+                result = Maths.merge(result, tmp);
+                chunk.clear();
+            }
+            if (!fsgatherer.hasNext()) {
+                break;
+            }
+        }
+        if (chunk.size() > 0) {
+            result = Maths.merge(result, Maths.merge(chunk));
+            System.out.println("Processed objects: " + totalcount);
+        }
+
+        long stop = System.currentTimeMillis();
+        long time = stop - start;
+        System.out.println("Total elapsed time: " + time / 1000.0 + " sec");
+
+        XmlSerialiser.printDocument(result, "output.xml", false);
     }
-    org.dom4j.Document output = XmlSerialiser.createDocument(result);
-    // lets write to a file
-    XMLWriter writer;
-    try {
-
-
-
-      // Pretty print the document to System.out
-      OutputFormat format = OutputFormat.createPrettyPrint();
-      writer = new XMLWriter(System.out, format);
-      writer.write(output);
-      writer = new XMLWriter(
-              new FileWriter("output.xml"), format);
-
-      writer.write(output);
-      writer.close();
-
-
-    } catch (IOException ex) {
-      Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
-    }
-
-
-
-    //    FileWriter out;
-//    try {
-//      out = new FileWriter("foo.xml");
-//      output.write(out);
-//    } catch (IOException ex) {
-//      Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
-//    }
-  }
 }
