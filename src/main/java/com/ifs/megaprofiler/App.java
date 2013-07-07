@@ -36,7 +36,9 @@ public class App {
             totalcount++;
             chunk.add(aggregator.parseDocument(fsgatherer.getNext()));
             if (totalcount % chunkmaxsize == 0) {
-                System.out.println("Processed objects: " + totalcount);
+                long stop = System.currentTimeMillis();
+                long time = stop - start;
+                System.out.println(totalcount + " objects processed in " + time / 1000.0 + " sec");
                 Document tmp = Maths.merge(chunk);
                 result = Maths.merge(result, tmp);
                 chunk.clear();
@@ -47,12 +49,15 @@ public class App {
         }
         if (chunk.size() > 0) {
             result = Maths.merge(result, Maths.merge(chunk));
-            System.out.println("Processed objects: " + totalcount);
+            long stop = System.currentTimeMillis();
+            long time = stop - start;
+            System.out.println(totalcount + " objects processed in " + time / 1000.0 + " sec");
         }
 
         long stop = System.currentTimeMillis();
         long time = stop - start;
         System.out.println("Total elapsed time: " + time / 1000.0 + " sec");
+        System.out.println("Average time: " + time / (totalcount * 1.0) + " sec per 1000 objects");
 
         XmlSerialiser.printDocument(result, "output.xml", false);
     }
