@@ -31,16 +31,22 @@ public class App {
         List<Document> chunk = new ArrayList<Document>();
         int chunkmaxsize = 1000;
         int totalcount = 0;
+        long stopMerge = System.currentTimeMillis();;
+        long stopGather = System.currentTimeMillis();;
+        long timeGather = 0;
+        long timeMerge = 0;
+
         while (true) {
-            //             result = Maths.merge(result, aggregator.parseDocument(fsgatherer.getNext()));
             totalcount++;
             chunk.add(aggregator.parseDocument(fsgatherer.getNext()));
             if (totalcount % chunkmaxsize == 0) {
-                long stop = System.currentTimeMillis();
-                long time = stop - start;
-                System.out.println(totalcount + " objects processed in " + time / 1000.0 + " sec");
+                stopGather = System.currentTimeMillis();
+                timeGather = stopGather - stopMerge;
                 Document tmp = Maths.merge(chunk);
                 result = Maths.merge(result, tmp);
+                stopMerge = System.currentTimeMillis();
+                timeMerge = stopMerge - stopGather;
+                System.out.println(totalcount + " files processed in " + (stopMerge - start) / 1000.0 + "s (" + timeGather / 1000.0 + "s - read, " + timeMerge / 1000.0 + "s - merge)");
                 chunk.clear();
             }
             if (!fsgatherer.hasNext()) {
@@ -51,13 +57,13 @@ public class App {
             result = Maths.merge(result, Maths.merge(chunk));
             long stop = System.currentTimeMillis();
             long time = stop - start;
-            System.out.println(totalcount + " objects processed in " + time / 1000.0 + " sec");
+            System.out.println(totalcount + " objects processed in " + time / 1000.0 + "s");
         }
 
         long stop = System.currentTimeMillis();
         long time = stop - start;
-        System.out.println("Total elapsed time: " + time / 1000.0 + " sec");
-        System.out.println("Average time: " + time / (totalcount * 1.0) + " sec per 1000 objects");
+        System.out.println("Total elapsed time: " + time / 1000.0 + "s");
+        System.out.println("Average time: " + time / (totalcount * 1.0) + "s per " + chunkmaxsize + " files");
 
         XmlSerialiser.printDocument(result, "output.xml", false);
     }
