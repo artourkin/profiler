@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.ifs.megaprofiler.maths.Maths;
+import static com.ifs.megaprofiler.maths.Maths.depthFirstSearch;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
@@ -29,17 +30,12 @@ public class Node {
         this.count = 1;
     }
 
-    public Node(String name, List<Property> properties, String value, List<Node> nodes) {
-        this.properties = properties;
-        this.value = value;
-        this.nodes = nodes;
-        this.count = 1;
-        this.name = name;
-    }
-    public Node(Node original){
-        this.properties = original.properties;
+    public Node(Node original) {
+        this.properties = new ArrayList<Property>();
+        this.properties.addAll(original.properties);
         this.value = original.value;
-        this.nodes = original.nodes;
+        this.nodes = new ArrayList<Node>();
+        this.nodes.addAll(original.nodes);
         this.count = original.count;
         this.name = original.name;
     }
@@ -67,11 +63,15 @@ public class Node {
         this.properties.add(property);
     }
 
-    public void addNode(Node node) {
+    public void addNode(Node node) throws Exception {
         if (this.nodes == null) {
             this.nodes = new ArrayList<Node>();
         }
-        this.nodes.add(node);
+        if (node != null) {
+            this.nodes.add(node);
+        } else {
+            throw new Exception("Can not add a null node");
+        }
     }
 
     public Node[] toArray() {
@@ -107,9 +107,13 @@ public class Node {
         if (!(obj instanceof Node)) {
             return false;
         }
+
         //return true;
 
         Node n = (Node) obj;
+        if (!this.name.equals(n.name)) {
+            return false;
+        }
         EqualsBuilder eqBuilder = new EqualsBuilder();
         eqBuilder.append(this.value, n.value);
         if (this.properties.size() != n.properties.size()) {
@@ -121,11 +125,55 @@ public class Node {
         return eqBuilder.isEquals();
     }
 
-    public Node merge(Node n) {
+    public Node merge(Node n) throws Exception {
         Node tmp = Maths.merge(this, n);
         this.value = tmp.value;
         this.properties = tmp.properties;
         this.nodes = tmp.nodes;
         return this;
+    }
+
+    public boolean contains(Node n) {
+        List<Node> list = Maths.depthFirstSearch(this);
+        if (list == null) {
+            return false;
+        }
+        int index = list.indexOf(n);
+        if (index >= 0) {
+            return true;
+        }
+        return false;
+    }
+
+    public Node get(Node n) {
+        List<Node> list = Maths.depthFirstSearch(this);
+        if (list != null) {
+            int index = list.indexOf(n);
+            if (index >= 0) {
+                return list.get(index);
+            }
+        }
+        return null;
+    }
+
+    public boolean isNull() {
+        if (this.name == null || this.name.equals("")) {
+            return true;
+        }
+        return false;
+    }
+
+    public Node getParent(Node n) {
+        if (this.contains(n)) {
+            List<Node> list = Maths.depthFirstSearch(this);
+            int i = list.indexOf(n);
+            while (i >= 0) {
+                if (list.get(i).nodes.contains(n)) {
+                    return list.get(i);
+                }
+                i--;
+            }
+        }
+        return null;
     }
 }
