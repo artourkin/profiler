@@ -4,8 +4,12 @@
  */
 package com.ifs.megaprofiler.elements;
 
+import java.util.List;
+
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+
+import com.ifs.megaprofiler.maths.Maths;
 
 /**
  *
@@ -42,6 +46,7 @@ public class Property {
         this.value = value;
         this.type = type;
     }
+
 
     @Override
     public int hashCode() {

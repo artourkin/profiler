@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -17,161 +18,95 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.io.FileUtils;
+import de.schlichtherle.truezip.file.TArchiveDetector;
+import de.schlichtherle.truezip.file.TFile;
 
 /**
- *
+ * 
  * @author artur
  */
-public class FileSystemGatherer implements Gatherer {
+public class FileSystemGatherer {
 
-  private Map<String, Object> config;
-  private List<String> files;
-  private long count;
-  private long remaining;
-  private int pointer;
-  private Iterator iterator;
+	private Iterator<File> iterator;
+	private Iterator<File> iteratorArchive;
 
-  public FileSystemGatherer(String path) {
-    init(path);
-  }
+	private static final String[] ARCHIVE_EXTENSIONS = { ".zip", ".tar",
+			".bzip2", ".tar.bz2", ".bz2", ".tb2", ".tbz", ".tar.gz", ".tgz",
+			".gz", ".tar.xz", ".txz", ".xz" };
 
-  public long getRemaining() {
-    return this.remaining;
-  }
+	private static int folder = 0;
 
-  public boolean hasNext() {
-    return iterator.hasNext();
+	public FileSystemGatherer(String path) {
+		init(path);
+	}
 
-  }
+	public boolean hasNext() {
+		if (iteratorArchive != null  && iteratorArchive.hasNext())
+			return true;
+		return iterator.hasNext();
+	}
 
-  public long getCount() {
-    return this.count;
-  }
+	private void init(String path) {
+		if (path == null) {
+			return;
+		}
+		File dir = new File(path);
+		if (!dir.exists() || !dir.isDirectory()) {
+			return;
+		}
+		this.iterator = FileUtils.iterateFiles(dir, null, true);
 
-  private void init(String path) {
-    this.files = new ArrayList<String>();
-    this.pointer = 0;
-    this.count = -1;
-    this.remaining = -1;
+	}
 
-    boolean recursive = true;
+	public InputStream getNext() throws IOException {
+		if (iteratorArchive != null && iteratorArchive.hasNext())
+			return new FileInputStream(iteratorArchive.next());
+		File file = iterator.next();
+		if (isXML(file.getName()))
+			return new FileInputStream(file);
+		else if (isArchive(file.getName())) {
+			clearTmpDir();
+			extractArchive(file.getAbsolutePath());
+			return getNext();
+		}
+		return null;
 
-    if (path == null) {
-      return;
-    }
+	}
 
-    File dir = new File(path);
+	private void clearTmpDir() throws IOException {
+		String tmp = FileUtils.getTempDirectory().getPath() + File.separator
+				+ "c3poarchives";
 
-    if (!dir.exists() || !dir.isDirectory()) {
-      return;
-    }
+		File tmpDir = new File(tmp);
+		FileUtils.deleteDirectory(tmpDir);
 
-    final XMLFileFilter filter = new XMLFileFilter(recursive);
+	}
 
-    this.iterator = FileUtils.iterateFiles(dir, null, true);
-    //this.count = this.traverseFiles(dir, filter);
-    //this.remaining = this.count;
+	private void extractArchive(String filePath) throws IOException {
+		TFile archive = new TFile(filePath);
+		String tmp = FileUtils.getTempDirectory().getPath() + File.separator
+				+ "c3poarchives" ;//+ File.separator + folder++;
+		File tmpDir = new File(tmp);
+		if (!tmpDir.exists())
+			tmpDir.mkdirs();
 
-  }
+		TFile directory = new TFile(tmpDir);
+		TFile.cp_r(archive, directory, TArchiveDetector.NULL,
+				TArchiveDetector.NULL);
+		this.iteratorArchive = FileUtils.iterateFiles(tmpDir, null, true);
+	}
 
-  public InputStream getNext() {
-    try {
-      return new FileInputStream((File) iterator.next());
+	private boolean isArchive(String name) {
+		for (String ext : ARCHIVE_EXTENSIONS)
+			if (name.endsWith(ext))
+				return true;
+		return false;
+	}
 
-      //    
-      //    List<InputStream> next = new ArrayList<InputStream>();
-      //
-      //    if (nr <= 0) {
-      //      return next;
-      //    }
-      //
-      //    while (iterator.hasNext() && nr > 0) {
-      //      try {
-      //        nr--;
-      //        next.add(new FileInputStream((File) iterator.next()));
-      //        //next.add(new FileInputStream(this.files.get(pointer++)));
-      //      } catch (FileNotFoundException e) {
-      //      }
-      //    }
-      //    return next;
-    } catch (FileNotFoundException ex) {
-      Logger.getLogger(FileSystemGatherer.class.getName()).log(Level.SEVERE, null, ex);
-      return null;
-    }
-  }
+	private boolean isXML(String name) {
+		if (name.endsWith(".xml"))
+			return true;
+		return false;
+	}
 
-  private long traverseFiles(File file, FileFilter filter) {
-    long sum = 0;
-
-    if (file.isDirectory()) {
-      File[] files = file.listFiles(filter);
-      for (File f : files) {
-        sum += traverseFiles(f, filter);
-      }
-    } else {
-      this.files.add(file.getAbsolutePath());
-      sum++;
-    }
-
-
-    return sum;
-  }
-
-  @Override
-  public List<InputStream> getNext(int count) {
-    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-  }
-
-  private class XMLFileFilter implements FileFilter {
-
-    private boolean recursive;
-
-    public XMLFileFilter(boolean recursive) {
-      this.recursive = recursive;
-    }
-
-    @Override
-    public boolean accept(File pathname) {
-      boolean accept = false;
-
-      if ((pathname.isDirectory() && this.recursive) || pathname.getName().endsWith(".xml")) {
-        accept = true;
-      }
-
-      return accept;
-    }
-  }
-
-  private void Extract(File file) throws Exception {
-    //String s;
-    try {
-
-      Process p = Runtime.getRuntime().exec("tar -xzf " + file.getPath() + " -C " + file.getParent());
-      //    BufferedReader br = new BufferedReader(
-      //       new InputStreamReader(p.getInputStream()));
-      //   while ((s = br.readLine()) != null)
-      //       System.out.println("line: " + s);
-      System.out.println("Extracting: " + file.getPath());
-      p.waitFor();
-      // System.out.println ("exit: " + p.exitValue());
-      p.destroy();
-    } catch (Exception ignored) {
-    }
-  }
-
-  public void Extract(File file, String Destination) {
-    //String s;
-    try {
-      Process p = Runtime.getRuntime().exec("tar -xzf " + file.getPath() + " -C " + Destination);
-      //    BufferedReader br = new BufferedReader(
-      //       new InputStreamReader(p.getInputStream()));
-      //   while ((s = br.readLine()) != null)
-      //       System.out.println("line: " + s);
-      System.out.println("Extracting: " + file.getPath());
-      p.waitFor();
-      // System.out.println ("exit: " + p.exitValue());
-      p.destroy();
-    } catch (Exception ignored) {
-    }
-  }
 }

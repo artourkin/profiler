@@ -29,8 +29,6 @@ public class App {
             String path = args[0];
             FileSystemGatherer fsgatherer = new FileSystemGatherer(path);
             Aggregator aggregator = new Aggregator();
-            long count = fsgatherer.getCount();
-            System.out.println(count);
             Document result = new Document();
             List<Document> chunk = new ArrayList<Document>();
             int chunkmaxsize = 1000;
@@ -46,11 +44,7 @@ public class App {
                 if (totalcount % chunkmaxsize == 0) {
                     stopGather = System.currentTimeMillis();
                     timeGather = stopGather - stopMerge;
-//                try {
                     result = Maths.merge(result, Maths.merge(chunk));
-//                } catch (Exception e) {
-//                    Logger.getLogger(Aggregator.class.getName()).log(Level.SEVERE, null, e);
-//                }
                     stopMerge = System.currentTimeMillis();
                     timeMerge = stopMerge - stopGather;
                     System.out.println(totalcount + " files processed in " + (stopMerge - start) / 1000.0 + "s (" + timeGather / 1000.0 + "s - read, " + timeMerge / 1000.0 + "s - merge)");
@@ -73,11 +67,12 @@ public class App {
             long stop = System.currentTimeMillis();
             long time = stop - start;
             System.out.println("Total elapsed time: " + time / 1000.0 + "s");
-            System.out.println("Average time: " + time / (totalcount * 1.0) + "s per " + chunkmaxsize + " files");
+            System.out.println("Average time: " + time / (float)(totalcount) + "s per " + chunkmaxsize + " files");
 
             XmlSerialiser.printDocument(result, "output.xml", false);
         } catch (Exception e) {
             Logger.getLogger(Aggregator.class.getName()).log(Level.SEVERE, null, e);
+            System.out.println(e.getMessage());
         }
     }
 }
