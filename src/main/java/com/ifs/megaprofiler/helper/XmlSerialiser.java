@@ -4,19 +4,20 @@
  */
 package com.ifs.megaprofiler.helper;
 
-import com.ifs.megaprofiler.App;
-import com.ifs.megaprofiler.elements.Node;
-import com.ifs.megaprofiler.elements.Property;
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
+
+import com.ifs.megaprofiler.App;
+import com.ifs.megaprofiler.elements.Node;
+import com.ifs.megaprofiler.elements.Property;
 
 /**
  *

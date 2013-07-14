@@ -7,12 +7,10 @@ package com.ifs.megaprofiler.elements;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.naming.spi.DirStateFactory.Result;
-
-import com.ifs.megaprofiler.maths.Maths;
-import static com.ifs.megaprofiler.maths.Maths.depthFirstSearch;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+
+import com.ifs.megaprofiler.maths.Maths;
 
 /**
  * 

@@ -4,17 +4,14 @@
  */
 package com.ifs.megaprofiler.maths;
 
-import com.ifs.megaprofiler.elements.Document;
-import com.ifs.megaprofiler.elements.Node;
-import com.ifs.megaprofiler.elements.Property;
-
-import java.util.Iterator;
-
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
-import java.util.Stack;
+
+import com.ifs.megaprofiler.elements.Document;
+import com.ifs.megaprofiler.elements.Node;
+import com.ifs.megaprofiler.elements.Property;
 
 /**
  * 

@@ -4,28 +4,22 @@
  */
 package com.ifs.megaprofiler.core;
 
-import com.ifs.megaprofiler.elements.Node;
-import com.ifs.megaprofiler.elements.Property;
-import com.ifs.megaprofiler.helper.ResourceLoader;
-import com.ifs.megaprofiler.maths.Maths;
-import com.sun.xml.internal.fastinfoset.vocab.Vocabulary;
 import java.io.InputStream;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.xml.crypto.NodeSetData;
-
 import org.dom4j.Attribute;
 import org.dom4j.Document;
-import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
+
+import com.ifs.megaprofiler.elements.Node;
+import com.ifs.megaprofiler.elements.Property;
+import com.ifs.megaprofiler.helper.ResourceLoader;
 
 /**
  * 

@@ -4,20 +4,15 @@
  */
 package com.ifs.megaprofiler.core;
 
-import com.ifs.megaprofiler.api.Gatherer;
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.commons.io.FileUtils;
+
+import com.ifs.megaprofiler.helper.MyLogger;
+
 import de.schlichtherle.truezip.file.TArchiveDetector;
 import de.schlichtherle.truezip.file.TFile;
 
@@ -33,8 +28,6 @@ public class FileSystemGatherer {
 	private static final String[] ARCHIVE_EXTENSIONS = { ".zip", ".tar",
 			".bzip2", ".tar.bz2", ".bz2", ".tb2", ".tbz", ".tar.gz", ".tgz",
 			".gz", ".tar.xz", ".txz", ".xz" };
-
-	private static int folder = 0;
 
 	public FileSystemGatherer(String path) {
 		init(path);
@@ -66,7 +59,9 @@ public class FileSystemGatherer {
 			return new FileInputStream(file);
 		else if (isArchive(file.getName())) {
 			clearTmpDir();
+			MyLogger.print("Extraction started from " + file.getName());
 			extractArchive(file.getAbsolutePath());
+			MyLogger.print("Extraction complete");
 			return getNext();
 		}
 		return null;
