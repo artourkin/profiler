@@ -58,7 +58,7 @@ public class XmlSerialiser {
         }
         parseProperties(node, element);
         parseNodes(node, element);
-        element.addAttribute("count", Integer.toString(node.count));
+        element.addAttribute("count", Long.toString(node.count));
     }
 
     private static void parseProperties(Node node, Element element) {

@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.ifs</groupId>
 	<artifactId>MegaProfiler</artifactId>
-	<version>0.3</version>
+	<version>0.4</version>
 	<packaging>jar</packaging>
 	<name>MegaProfiler</name>
 	<url>http://maven.apache.org</url>
@@ -73,21 +73,6 @@
 			<artifactId>ant</artifactId>
 			<version>1.8.1</version>
 			<type>jar</type>
-		</dependency>
-		<dependency>
-			<groupId>de.schlichtherle.truezip</groupId>
-			<artifactId>truezip-driver-tar</artifactId>
-			<version>7.7.2</version>
-		</dependency>
-		<dependency>
-			<groupId>de.schlichtherle.truezip</groupId>
-			<artifactId>truezip-driver-zip</artifactId>
-			<version>7.7.2</version>
-		</dependency>
-		<dependency>
-			<groupId>de.schlichtherle.truezip</groupId>
-			<artifactId>truezip-file</artifactId>
-			<version>7.7.2</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-io</groupId>
