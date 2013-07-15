@@ -53,9 +53,9 @@ public class Aggregator {
             Node nodeRoot = new Node();
             nodeRoot.setName("root");
 
-            Node main = parseElement(root);
+            Node main = parseElement(root, true);
             nodeRoot.addNode(main);
-            nodeRoot.addNode(getStatsNode(main));
+            nodeRoot.addNode(getStatsNode(root));
             result.setRoot(nodeRoot);
             return result;
         } catch (Exception ex) {
@@ -65,30 +65,34 @@ public class Aggregator {
         }
     }
 
-    private Node getStatsNode(Node main) {
+    private Node getStatsNode(Element element) {
+        Node tmpTree = parseElement(element, false);
         Node stats = new Node();
         stats.setName("stats");
-        for (String s : statsMap.keySet()) {
-            Node node = main.getNode(s);
-            if (node != null) {
-                main.getParent(node).nodes.remove(node);
-                stats.addNode(node);
+        for (String elementName : statsMap.keySet()) {
+            Node tmpNode = tmpTree.findNode(elementName);
+            if (tmpNode != null) {
+                stats.addNode(tmpNode);
             }
         }
         return stats;
     }
 
-    private Node parseElement(Element element) {
-        if (element == null || !isAllowed(element.getName())) {
+    private Node parseElement(Element element, boolean strict) {
+
+        if (strict && (element == null || !isAllowed(element.getName()))) {
+            return null;
+        }
+        if (!strict && element == null) {
             return null;
         }
         com.ifs.megaprofiler.elements.Node result = new Node();
         result.name = element.getName();
-        List<Property> properties = parseAttributes(element);
+        List<Property> properties = parseAttributes(element, strict);
         if (properties != null) {
             result.properties.addAll(properties);
         }
-        List<Node> nodes = parseSubElements(element);
+        List<Node> nodes = parseSubElements(element, strict);
         if (nodes != null) {
             result.nodes.addAll(nodes);
         } else {
@@ -97,7 +101,7 @@ public class Aggregator {
         return result;
     }
 
-    private List<Property> parseAttributes(Element element) {
+    private List<Property> parseAttributes(Element element, boolean strict) {
         if (element == null) {
             return null;
         }
@@ -111,7 +115,7 @@ public class Aggregator {
             List<Property> result = new ArrayList<Property>();
             List<Attribute> attributes = element.attributes();
             for (Attribute attribute : attributes) {
-                Property property = parseAttribute(attribute);
+                Property property = parseAttribute(attribute, strict);
                 if (property != null) {
                     result.add(property);
                 }
@@ -120,8 +124,11 @@ public class Aggregator {
         }
     }
 
-    private Property parseAttribute(Attribute attribute) {
-        if (attribute == null || !isAllowed(attribute.getName())) {
+    private Property parseAttribute(Attribute attribute, boolean strict) {
+        if (strict && (attribute == null || !isAllowed(attribute.getName()))) {
+            return null;
+        }
+        if (!strict && attribute == null) {
             return null;
         }
         Property result = new Property();
@@ -131,7 +138,7 @@ public class Aggregator {
         return result;
     }
 
-    private List<Node> parseSubElements(Element element) {
+    private List<Node> parseSubElements(Element element, boolean strict) {
         if (element == null || element.elements() == null
                 || element.elements().isEmpty()) {
             return null;
@@ -139,7 +146,7 @@ public class Aggregator {
         List<Node> result = new ArrayList<Node>();
         List<Element> subElements = element.elements();
         for (Element subElement : subElements) {
-            Node node = parseElement(subElement);
+            Node node = parseElement(subElement, strict);
             if (node != null) {
                 result.add(node);
             }

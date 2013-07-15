@@ -77,10 +77,10 @@ public class Node {
         return tmpnodes.toArray(new Node[tmpnodes.size()]);
     }
 
-    public Node findNode(String nodeValue) {
+    public Node findNode(String nodeName) {
         Node[] nodes = this.toArray();
         for (Node node : nodes) {
-            if (node.value.equals(nodeValue)) {
+            if (node.name.equals(nodeName)) {
                 return node;
             }
         }
