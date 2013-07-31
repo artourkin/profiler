@@ -7,7 +7,8 @@ import com.ifs.megaprofiler.core.Aggregator;
 import com.ifs.megaprofiler.core.FileSystemGatherer;
 import com.ifs.megaprofiler.elements.Document;
 import com.ifs.megaprofiler.helper.MyLogger;
-import com.ifs.megaprofiler.helper.XmlSerialiser;
+import com.ifs.megaprofiler.helper.TranslatorC3PO;
+import com.ifs.megaprofiler.helper.XmlSerializer;
 import com.ifs.megaprofiler.maths.Maths;
 
 /**
@@ -26,34 +27,38 @@ public class App {
             System.out.println("Process started");
             MyLogger.print("Process started");
             String path = args[0];
-            MyLogger.print("Initialisation...");
+            MyLogger.print("Initialization...");
             FileSystemGatherer fsgatherer = new FileSystemGatherer(path);
             Aggregator aggregator = new Aggregator();
             Document result = new Document();
             List<Document> chunk = new ArrayList<Document>();
             int chunkmaxsize = 1000;
             long totalcount = 0;
-            long stopMerge = System.currentTimeMillis();
-            long stopGather = System.currentTimeMillis();
-            long timeGather = 0;
-            long timeMerge = 0;
-            MyLogger.print("Initialisation complete");
+            long stopReduce = System.currentTimeMillis();
+            long stopMap = System.currentTimeMillis();
+            long timeMapTmp = 0;
+            long timeReduceTmp = 0;
+            long time = 0;
+            long timeReduce = 0;
+            long timeMap = 0;
+            MyLogger.print("Initialization complete");
             while (true) {
-
                 totalcount++;
                 chunk.add(aggregator.parseDocument(fsgatherer.getNext()));
                 if (totalcount % chunkmaxsize == 0) {
-                    stopGather = System.currentTimeMillis();
-                    timeGather = stopGather - stopMerge;
+                    stopMap = System.currentTimeMillis();
+                    timeMapTmp = stopMap - stopReduce;
+                    timeMap += timeMapTmp;
                     result = Maths.merge(result, Maths.merge(chunk));
-                    stopMerge = System.currentTimeMillis();
-                    timeMerge = stopMerge - stopGather;
+                    stopReduce = System.currentTimeMillis();
+                    timeReduceTmp = stopReduce - stopMap;
+                    timeReduce += timeReduceTmp;
                     System.out.print("\r" + totalcount + " files processed in "
-                            + (stopMerge - start) / 1000.0 + "s    ");
+                            + (stopReduce - start) / 1000.0 + "s    ");
                     MyLogger.print(totalcount + " files processed in "
-                            + (stopMerge - start) / 1000.0 + "s (" + timeGather
-                            / 1000.0 + "s - read, " + timeMerge / 1000.0
-                            + "s - merge)");
+                            + (stopReduce - start) / 1000.0 + "s (map/reduce: " + timeMapTmp
+                            / 1000.0 + "/" + timeReduceTmp / 1000.0
+                            + "s)");
                     chunk.clear();
                 }
                 if (!fsgatherer.hasNext()) {
@@ -64,28 +69,38 @@ public class App {
             if (chunk.size() > 0) {
 
                 result = Maths.merge(result, Maths.merge(chunk));
-                stopMerge = System.currentTimeMillis();
-                timeMerge = stopMerge - stopGather;
+                stopReduce = System.currentTimeMillis();
+                timeReduceTmp = stopReduce - stopMap;
+                timeReduce += timeReduceTmp;
                 System.out.print("\r" + totalcount + " files processed in "
-                        + (stopMerge - start) / 1000.0 + "s    ");
+                        + (stopReduce - start) / 1000.0 + "s    ");
                 MyLogger.print(totalcount + " files processed in "
-                        + (stopMerge - start) / 1000.0 + "s (" + timeGather
-                        / 1000.0 + "s - read, " + timeMerge / 1000.0
-                        + "s - merge)");
+                        + (stopReduce - start) / 1000.0 + "s (map/reduce: " + timeMapTmp
+                        / 1000.0 + "/" + timeReduceTmp / 1000.0
+                        + "s)");
                 chunk.clear();
             }
             long stop = System.currentTimeMillis();
-            long time = stop - start;
-            System.out.println("\nTotal elapsed time: " + time / 1000.0 + "s");
-            MyLogger.print("Total elapsed time: " + time / 1000.0 + "s");
+            time = stop - start;
+            System.out.println("\nTotal elapsed time: " + time / 1000.0 + "s (map/reduce: " + timeMap
+                    / 1000.0 + "/" + timeReduce / 1000.0
+                    + "s)");
+            MyLogger.print("[RESULT] Total elapsed time: " + time / 1000.0 + "s (map/reduce: " + timeMap
+                    / 1000.0 + "/" + timeReduce / 1000.0
+                    + "s)");
 
+            float avgTime = (float) ((time * chunkmaxsize) / (1000.0 * totalcount));
+            float timeMapAvg = (float) ((timeMap * chunkmaxsize) / (1000.0 * totalcount));
+            float timeReduceAvg = (float) ((timeReduce * chunkmaxsize) / (1000.0 * totalcount));
+            System.out.println("Average time: " + avgTime
+                    + "s per " + chunkmaxsize + " files (map/reduce: " + timeMapAvg
+                    + "/" + timeReduceAvg + "s)");
+            MyLogger.print("[RESULT] Average time: " + avgTime
+                    + "s per " + chunkmaxsize + " files (map/reduce: " + timeMapAvg
+                    + "/" + timeReduceAvg + "s)");
 
-            System.out.println("Average time: " + (time * chunkmaxsize) / (1000.0 * totalcount)
-                    + "s per " + chunkmaxsize + " files");
-            MyLogger.print("Average time: " + (time * chunkmaxsize) / (1000.0 * totalcount)
-                    + "s per " + chunkmaxsize + " files");
-
-            XmlSerialiser.printDocument(result, "output.xml", false);
+            XmlSerializer.printDocument(result, "output.xml", false);
+            TranslatorC3PO.printDocument(result, "outputc3po.xml", false);
             System.out.println("Process finished");
             MyLogger.print("Process finished");
         } catch (Exception e) {

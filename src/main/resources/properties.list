@@ -3,6 +3,15 @@ identification
 status
 identity
 mimetype
-toolname
-tool
+format
 version
+externalIdentifier
+type
+metadata
+image
+compressionScheme
+byteOrder
+text
+charset
+colorSpace
+creatingApplicationName

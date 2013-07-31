@@ -11,6 +11,7 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import com.ifs.megaprofiler.maths.Maths;
+import javax.naming.spi.DirStateFactory;
 
 /**
  *
@@ -85,7 +86,42 @@ public class Node {
             }
         }
         return null;
+    }
 
+    public List<Node> findNodes(String nodeName) {
+        Node[] nodes = this.toArray();
+        List<Node> result = new ArrayList<Node>();
+        for (Node node : nodes) {
+            if (node.name.equals(nodeName)) {
+                result.add(node);
+            }
+        }
+        return result;
+
+    }
+
+    public List<Node> getNodesByProperty(Property property) {
+        List<Node> result = new ArrayList<Node>();
+        Node[] nodes = toArray();
+        for (Node node : nodes) {
+            if (!result.contains(node) && node.properties.contains(property)) {
+                result.add(node);
+            }
+        }
+        return result;
+    }
+
+    public List<Property> getProperties() {
+        List<Property> result = new ArrayList<Property>();
+        Node[] nodes = toArray();
+        for (Node node : nodes) {
+            for (Property property : node.properties) {
+                if (!result.contains(property)) {
+                    result.add(property);
+                }
+            }
+        }
+        return properties;
     }
 
     @Override
@@ -198,15 +234,28 @@ public class Node {
 
     public Node getParent(Node n) {
         if (this.contains(n)) {
-            List<Node> list = Maths.depthFirstSearch(this);
-            int i = list.indexOf(n);
-            while (i >= 0) {
-                if (list.get(i).nodes.contains(n)) {
-                    return list.get(i);
+            List<Node> list = Maths.breadthFirstSearch(this);
+            for (Node node : list) {
+                for (Node subnode : node.nodes) {
+                    if (subnode == n) {
+                        return node;
+                    }
                 }
-                i--;
             }
         }
         return null;
+
+
+//        if (this.contains(n)) {
+//            List<Node> list = Maths.depthFirstSearch(this);
+//            int i = list.indexOf(n);
+//            while (i >= 0) {
+//                if (list.get(i).nodes.contains(n)) {
+//                    return list.get(i);
+//                }
+//                i--;
+//            }
+//        }
+//        return null;
     }
 }

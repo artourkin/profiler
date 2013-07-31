@@ -23,7 +23,7 @@ import com.ifs.megaprofiler.elements.Property;
  *
  * @author artur
  */
-public class XmlSerialiser {
+public class XmlSerializer {
 
     public static Document createDocument(com.ifs.megaprofiler.elements.Document document) {
         Document result = DocumentHelper.createDocument();
@@ -34,7 +34,7 @@ public class XmlSerialiser {
     }
 
     public static void printDocument(com.ifs.megaprofiler.elements.Document document, String filename, boolean consoleOutput) {
-        Document output = XmlSerialiser.createDocument(document);
+        Document output = createDocument(document);
         XMLWriter writer;
         try {
             OutputFormat format = OutputFormat.createPrettyPrint();
