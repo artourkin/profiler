@@ -12,14 +12,15 @@ public class MyLogger {
 	static Date date;
 
 	public static void print(String text) {
-		if (file == null){
+		if (file == null) {
 			file = new File(path);
-			date=new Date();
-		
+			date = new Date();
+
 		}
-		
+
 		try {
-			FileUtils.writeStringToFile(file, new Date().toString() +": "+ text +"\n",true);
+			FileUtils.writeStringToFile(file, new Date().toString() + ": "
+					+ text + "\n", true);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
