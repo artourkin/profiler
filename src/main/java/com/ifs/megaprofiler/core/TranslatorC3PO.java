@@ -146,9 +146,14 @@ public class TranslatorC3PO {
 		for (Iterator it = map.entrySet().iterator(); it.hasNext();) {
 			Entry entry = (Entry) it.next();
 			Element item = new DefaultElement("item");
-			item.add(new DefaultAttribute("id", entry.getKey().toString()));
-			item.add(new DefaultAttribute("count", entry.getValue().toString()));
-			property.add(item);
+			String keyString = entry.getKey().toString();
+			String valueString = entry.getValue().toString();
+			if (!(keyString.isEmpty() || valueString.isEmpty())) {
+				item.add(new DefaultAttribute("id", entry.getKey().toString()));
+				item.add(new DefaultAttribute("value", entry.getValue()
+						.toString()));
+				property.add(item);
+			}
 		}
 	}
 

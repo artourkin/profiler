@@ -25,8 +25,8 @@ public class FileSystemGatherer {
 	private static final String[] ARCHIVE_EXTENSIONS = { ".zip", ".tar",
 			".tar.gz", ".tgz", ".gz" };
 
-	public FileSystemGatherer(String path) {
-		init(path);
+	public FileSystemGatherer(String path) throws IOException {
+		initialize(path);
 	}
 
 	public boolean hasNext() {
@@ -36,16 +36,15 @@ public class FileSystemGatherer {
 		return iterator.hasNext();
 	}
 
-	private void init(String path) {
+	private void initialize(String path) throws IOException {
 		if (path == null) {
-			return;
+			throw new IOException("No path specified");
 		}
 		File dir = new File(path);
 		if (!dir.exists() || !dir.isDirectory()) {
-			return;
+			throw new IOException("Directory does not exist");
 		}
 		this.iterator = FileUtils.iterateFiles(dir, null, true);
-
 	}
 
 	public InputStream getNext() throws IOException {

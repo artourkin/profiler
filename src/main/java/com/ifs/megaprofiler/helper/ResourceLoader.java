@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.apache.commons.io.FileUtils;
+
 /**
  * 
  * @author artur
@@ -27,6 +29,10 @@ public class ResourceLoader {
 			File file = new File("src/main/resources/properties.list");
 			if (!file.exists()) {
 				file = new File("properties.list");
+			}
+			if (!file.exists()) {
+				file = new File(FileUtils.getUserDirectoryPath()
+						+ "properties.list");
 			}
 			if (!file.exists()) {
 				System.out
