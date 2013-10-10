@@ -54,6 +54,9 @@ public class FileSystemGatherer {
 		if (iterator == null) {
 			throw new IOException("ERROR! Filepath specified incorrectly");
 		}
+		if (!iterator.hasNext()) {
+			return null;
+		}
 		File file = iterator.next();
 		if (isXML(file.getName())) {
 			return new FileInputStream(file);

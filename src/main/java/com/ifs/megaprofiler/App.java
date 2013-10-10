@@ -18,7 +18,7 @@ public class App {
 		}
 		Controller ctr = new Controller();
 		if (args.length == 1) {
-			ctr.Execute(args[0],"");
+			ctr.Execute(args[0], "");
 		} else {
 			ctr.Execute(args[0], args[1]);
 		}

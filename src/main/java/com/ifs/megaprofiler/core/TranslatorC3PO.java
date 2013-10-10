@@ -29,6 +29,7 @@ import org.dom4j.tree.DefaultElement;
 
 import com.ifs.megaprofiler.App;
 import com.ifs.megaprofiler.elements.Node;
+import com.ifs.megaprofiler.helper.MyLogger;
 
 /**
  * 
@@ -51,6 +52,9 @@ public class TranslatorC3PO {
 	public static void printDocument(
 			com.ifs.megaprofiler.elements.Document document, String filename,
 			boolean consoleOutput) {
+		if (document == null) {
+			return;
+		}
 		Document output = createDocument(document);
 		XMLWriter writer;
 		try {
@@ -60,6 +64,8 @@ public class TranslatorC3PO {
 				writer = new XMLWriter(System.out, format);
 				writer.write(output);
 			}
+			System.out.println("Writing a c3po profile to file: " + filename);
+			MyLogger.print("Writing a c3po profile to file: " + filename);
 			writer = new XMLWriter(new FileWriter(filename), format);
 			writer.write(output);
 			writer.close();
@@ -245,14 +251,14 @@ public class TranslatorC3PO {
 	}
 
 	static boolean isIdentificationConflicted(Node node, Node root) { // checking
-																		// whether
-																		// node
-																		// a
-																		// conflicted
-																		// identification
-																		// or a
-																		// conflicted
-																		// version
+		// whether
+		// node
+		// a
+		// conflicted
+		// identification
+		// or a
+		// conflicted
+		// version
 		while (node != null) {
 			if (node.name.equals("identification")) {
 				break;
@@ -267,12 +273,12 @@ public class TranslatorC3PO {
 	}
 
 	static boolean isVersionConflicted(Node node, Node root) { // checking
-																// whether node
-																// a conflicted
-																// identification
-																// or a
-																// conflicted
-																// version
+		// whether node
+		// a conflicted
+		// identification
+		// or a
+		// conflicted
+		// version
 		if (node != null && node.getProperty("status") != null
 				&& node.getProperty("status").value.equals("CONFLICT")) {
 			return true;

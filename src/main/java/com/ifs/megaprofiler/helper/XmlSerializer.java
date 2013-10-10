@@ -37,6 +37,9 @@ public class XmlSerializer {
 	public static void printDocument(
 			com.ifs.megaprofiler.elements.Document document, String filename,
 			boolean consoleOutput) {
+		if (document == null) {
+			return;
+		}
 		Document output = createDocument(document);
 		XMLWriter writer;
 		try {
@@ -46,6 +49,8 @@ public class XmlSerializer {
 				writer = new XMLWriter(System.out, format);
 				writer.write(output);
 			}
+            System.out.println("Writing a profile to file: " + filename);
+			MyLogger.print("Writing a profile to file: " + filename);
 			writer = new XMLWriter(new FileWriter(filename), format);
 			writer.write(output);
 			writer.close();

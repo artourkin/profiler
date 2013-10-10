@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.ifs</groupId>
 	<artifactId>Megaprofiler</artifactId>
-	<version>0.52</version>
+	<version>0.54</version>
 	<packaging>jar</packaging>
 	<name>Megaprofiler</name>
 	<url>http://maven.apache.org</url>

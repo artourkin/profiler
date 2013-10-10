@@ -94,8 +94,16 @@ public class Maths {
 	public static Document reduce(Document d1, Document d2) throws Exception {
 		Document d;
 		d = new Document();
-		d.root = reduce(d1.root, d2.root);
-		updateStats(d.root);
+		if (d1 == null && d2 != null) {
+			d.root = d2.root;
+		} else if (d1 != null && d2 == null) {
+			d.root = d1.root;
+		} else if (d1 == null && d2 == null) {
+			d = null;
+		} else if (d1 != null && d2 != null) {
+			d.root = reduce(d1.root, d2.root);
+			updateStats(d.root);
+		}
 		return d;
 	}
 

@@ -10,6 +10,7 @@ import com.ifs.megaprofiler.helper.XmlSerializer;
 import com.ifs.megaprofiler.maths.Maths;
 
 public class Controller {
+
 	public long count;
 	long start;
 	int chunkmaxsize;
@@ -54,7 +55,7 @@ public class Controller {
 	private void initialize(String path) throws IOException {
 		MyLogger.print("Initialization...");
 		aggregator = new Aggregator();
-		result = new Document();
+		result = null;
 		chunk = new ArrayList<Document>();
 		start = System.currentTimeMillis();
 		stopReduce = System.currentTimeMillis();
@@ -73,8 +74,11 @@ public class Controller {
 	private void map() { // parses documents and maps results to a chunk
 		while (true) {
 			try {
-				totalcount++;
-				chunk.add(aggregator.parseDocument(fsgatherer.getNext()));
+				Document doc = aggregator.parseDocument(fsgatherer.getNext());
+				if (doc != null) {
+					totalcount++;
+					chunk.add(doc);
+				}
 			} catch (Exception e) {
 				MyLogger.print(Aggregator.class.getName() + ", exception:"
 						+ e.getMessage());
@@ -118,22 +122,33 @@ public class Controller {
 	private void terminate() {
 		long stop = System.currentTimeMillis();
 		time = stop - start;
-		System.out.println("\nTotal elapsed time: " + time / 1000.0
-				+ "s (map/reduce: " + timeMap / 1000.0 + "/" + timeReduce
-				/ 1000.0 + "s)");
-		MyLogger.print("[RESULT] Total elapsed time: " + time / 1000.0
-				+ "s (map/reduce: " + timeMap / 1000.0 + "/" + timeReduce
-				/ 1000.0 + "s)");
 
-		float avgTime = (float) ((time * chunkmaxsize) / (1000.0 * totalcount));
-		float timeMapAvg = (float) ((timeMap * chunkmaxsize) / (1000.0 * totalcount));
-		float timeReduceAvg = (float) ((timeReduce * chunkmaxsize) / (1000.0 * totalcount));
-		System.out.println("Average time: " + avgTime + "s per " + chunkmaxsize
-				+ " files (map/reduce: " + timeMapAvg + "/" + timeReduceAvg
-				+ "s)");
-		MyLogger.print("[RESULT] Average time: " + avgTime + "s per "
-				+ chunkmaxsize + " files (map/reduce: " + timeMapAvg + "/"
-				+ timeReduceAvg + "s)");
+		if (totalcount == 0) {
+			System.out.print("\r" + totalcount + " files processed in "
+					+ (stopReduce - start) / 1000.0 + "s    \n");
+			MyLogger.print(totalcount + " files processed in "
+					+ (stopReduce - start) / 1000.0 + "s (map/reduce: "
+					+ timeMapTmp / 1000.0 + "/" + timeReduceTmp / 1000.0 + "s)");
+
+		} else {
+
+			System.out.println("\nTotal elapsed time: " + time / 1000.0
+					+ "s (map/reduce: " + timeMap / 1000.0 + "/" + timeReduce
+					/ 1000.0 + "s)");
+			MyLogger.print("[RESULT] Total elapsed time: " + time / 1000.0
+					+ "s (map/reduce: " + timeMap / 1000.0 + "/" + timeReduce
+					/ 1000.0 + "s)");
+
+			float avgTime = (float) ((time * chunkmaxsize) / (1000.0 * totalcount));
+			float timeMapAvg = (float) ((timeMap * chunkmaxsize) / (1000.0 * totalcount));
+			float timeReduceAvg = (float) ((timeReduce * chunkmaxsize) / (1000.0 * totalcount));
+			System.out.println("Average time: " + avgTime + "s per "
+					+ chunkmaxsize + " files (map/reduce: " + timeMapAvg + "/"
+					+ timeReduceAvg + "s)");
+			MyLogger.print("[RESULT] Average time: " + avgTime + "s per "
+					+ chunkmaxsize + " files (map/reduce: " + timeMapAvg + "/"
+					+ timeReduceAvg + "s)");
+		}
 		this.count = totalcount;
 	}
 

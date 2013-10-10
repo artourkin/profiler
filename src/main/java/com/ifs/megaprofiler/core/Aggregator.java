@@ -43,8 +43,10 @@ public class Aggregator {
 
 	public com.ifs.megaprofiler.elements.Document parseDocument(
 			InputStream input) throws DocumentException {
-		Document doc = reader.read(input);
 		com.ifs.megaprofiler.elements.Document result = new com.ifs.megaprofiler.elements.Document();
+		if (input == null)
+			return null;
+		Document doc = reader.read(input);
 		Element root = doc.getRootElement();
 
 		Node nodeRoot = new Node();
