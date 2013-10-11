@@ -28,7 +28,7 @@ public class Aggregator {
 	List<String> Vocabulary;
 	SAXReader reader;
 	List<String> allowedElements;
-	final String[] statsNodes = { "size", "min", "max", "sd", "avg", "var" };
+	final String[] statsNodes = { "min", "max", "sd", "avg", "var" };
 	Map<String, String[]> statsMap;
 	List<String> statsList;
 
@@ -37,7 +37,7 @@ public class Aggregator {
 		Vocabulary = new ArrayList<String>();
 		allowedElements = ResourceLoader.getAllowedElements();
 		statsMap = new HashMap<String, String[]>();
-		statsMap.put("size", new String[] { "min", "max", "sd", "avg", "var" });
+		statsMap.put("size", statsNodes);
 
 	}
 
@@ -52,11 +52,18 @@ public class Aggregator {
 		Node nodeRoot = new Node();
 		nodeRoot.setName("root");
 
-		Node main = mapElement(root, true);
-		nodeRoot.addNode(main);
-		nodeRoot.addNode(getStatsNode(root));
-		result.setRoot(nodeRoot);
-		return result;
+		if (root.getName().equals("fits")) { // parse a fits file
+			Node main = mapElement(root, true);
+			nodeRoot.addNode(main);
+			nodeRoot.addNode(getStatsNode(root));
+			result.setRoot(nodeRoot);
+			return result;
+		} else if (root.getName().equals("root")) { // parse an existing profile
+			nodeRoot = mapElement(root, false);
+			result.setRoot(nodeRoot);
+			return result;
+		}
+		return null;
 
 	}
 
@@ -73,7 +80,10 @@ public class Aggregator {
 		return stats;
 	}
 
-	private Node mapElement(Element element, boolean strict) {
+	private Node mapElement(Element element, boolean strict) { // strict - usage
+																// of
+																// properties.list
+																// file
 
 		if (strict && (element == null || !isAllowed(element.getName()))) {
 			return null;
@@ -85,6 +95,13 @@ public class Aggregator {
 		result.name = element.getName();
 		List<Property> properties = mapAttributes(element, strict);
 		if (properties != null) {
+			for (Property property : properties) {
+				if (property.key.equals("count")) {
+					result.count = Long.parseLong(property.value);
+					properties.remove(property);
+					break;
+				}
+			}
 			result.properties.addAll(properties);
 		}
 		List<Node> nodes = mapSubElements(element, strict);
@@ -103,7 +120,13 @@ public class Aggregator {
 		if (statsMap.keySet().contains(element.getName())) {
 			List<Property> result = new ArrayList<Property>();
 			for (String s : statsMap.get(element.getName())) {
-				result.add(new Property(s, "", Property.Type.String));
+				Attribute a = element.attribute(s);
+				if (a != null) {
+					result.add(new Property(s, a.getValue(),
+							Property.Type.String));
+				} else {
+					result.add(new Property(s, "", Property.Type.String));
+				}
 			}
 			return result;
 		} else {
