@@ -55,12 +55,12 @@ public class Controller {
 					+ e.getMessage());
 			return;
 		}
-		// map();
-		// terminate();
+
 		mapper = new Mapper(path, queueDocument, this.message);
 		reducer = new Reducer(queueDocument, this.message);
 		mapper.run();
 		reducer.run();
+		terminate();
 		serializeResults(reducer.getDocument(), profilepath);
 		MyPrinter.print("Process finished\n");
 		MyLogger.print("Process finished");
@@ -69,20 +69,8 @@ public class Controller {
 	private void initialize(String path) {
 		MyPrinter.print("Initialization...\n");
 		MyLogger.print("Initialization...");
-		// aggregator = new Aggregator(queueIS);
 		result = null;
-		chunk = new ArrayList<Document>();
 		start = System.currentTimeMillis();
-		stopReduce = System.currentTimeMillis();
-		stopMap = System.currentTimeMillis();
-		chunkmaxsize = 1000;
-		totalcount = 0;
-		timeMapTmp = 0;
-		timeReduceTmp = 0;
-		time = 0;
-		timeReduce = 0;
-		timeMap = 0;
-		// fsgatherer = new FileSystemGatherer(path,queueIS);
 		MyPrinter.print("Initialization complete\n");
 		MyLogger.print("Initialization complete");
 	}
@@ -92,29 +80,6 @@ public class Controller {
 		time = stop - start;
 		mapper.terminate();
 		reducer.terminate();
-		if (totalcount == 0) {
-			MyPrinter.print("\r" + totalcount + " files processed in " + time
-					/ 1000.0 + "s    \n");
-			MyLogger.print(totalcount + " files processed in " + time / 1000.0
-					+ "s (map/reduce: " + timeMapTmp / 1000.0 + "/"
-					+ timeReduceTmp / 1000.0 + "s)");
-		} else {
-			MyPrinter.print("\nTotal elapsed time: " + time / 1000.0
-					+ "s (map/reduce: " + timeMap / 1000.0 + "/" + timeReduce
-					/ 1000.0 + "s)");
-			MyLogger.print("[RESULT] Total elapsed time: " + time / 1000.0
-					+ "s (map/reduce: " + timeMap / 1000.0 + "/" + timeReduce
-					/ 1000.0 + "s)");
-
-			float avgTime = (float) ((time * chunkmaxsize) / (1000.0 * totalcount));
-			float timeMapAvg = (float) ((timeMap * chunkmaxsize) / (1000.0 * totalcount));
-			float timeReduceAvg = (float) ((timeReduce * chunkmaxsize) / (1000.0 * totalcount));
-			System.out.println("Average time: " + avgTime + "s per "
-					+ chunkmaxsize + " files");
-			MyLogger.print("[RESULT] Average time: " + avgTime + "s per "
-					+ chunkmaxsize + " files");
-		}
-		this.count = totalcount;
 	}
 
 	private void serializeResults(Document document, String profilepath) {

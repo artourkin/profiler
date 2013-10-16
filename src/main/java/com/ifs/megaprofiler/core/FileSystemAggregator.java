@@ -129,18 +129,24 @@ public class FileSystemAggregator implements Runnable {
 
 	@Override
 	public void run() {
-		try {
-			while (hasNext() && running) {
-				InputStream is = getNext();
-				if (is != null) {
+		while (hasNext() && running) {
+			InputStream is = null;
+			try {
+				is = getNext();
+			} catch (Exception e) {
+				MyLogger.print(Parser.class.getName() + ", exception:"
+						+ e.getMessage());
+			}
+			if (is != null) {
+				try {
 					queue.put(is);
+				} catch (Exception e) {
+					MyLogger.print(Parser.class.getName() + ", exception:"
+							+ e.getMessage());
 				}
 			}
-			message.makeItTrue();
-		} catch (Exception ex) {
-			Logger.getLogger(FileSystemAggregator.class.getName()).log(
-					Level.SEVERE, null, ex);
 		}
+		message.makeItTrue();
 
 	}
 }
