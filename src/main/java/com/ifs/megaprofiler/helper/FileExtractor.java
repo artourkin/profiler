@@ -37,148 +37,143 @@ import org.apache.commons.io.IOUtils;
 // Thanks to: https://gist.github.com/johnkil/4345164
 /**
  * Extracts different archive files with apache commons compress.
- * 
+ *
  * @author Petar Petrov <me@petarpetrov.org>
- * 
+ *
  */
 public class FileExtractor {
 
-	/**
-	 * Default logger.
-	 */
-	// private static final Logger LOG =
-	// LoggerFactory.getLogger(FileExtractor.class);
-	/**
-	 * The buffer size used for IO operations.
-	 */
-	private static final int BUFFER_SIZE = 8 * 1024;
+    /**
+     * Default logger.
+     */
+    // private static final Logger LOG =
+    // LoggerFactory.getLogger(FileExtractor.class);
+    /**
+     * The buffer size used for IO operations.
+     */
+    private static final int BUFFER_SIZE = 8 * 1024;
 
-	/**
-	 * Extracts the given archive file to the given destination folder.
-	 * 
-	 * @param src
-	 *            the file to extract.
-	 * @param dst
-	 *            the destination folder.
-	 */
-	public static void extract(String src, String dst) {
+    /**
+     * Extracts the given archive file to the given destination folder.
+     *
+     * @param src the file to extract.
+     * @param dst the destination folder.
+     */
+    public static void extract(String src, String dst) {
 
-		ArchiveInputStream is = getStream(src);
-		extract(is, new File(dst));
+        ArchiveInputStream is = getStream(src);
+        extract(is, new File(dst));
 
-	}
+    }
 
-	public static void extract(File src, File dst) {
+    public static void extract(File src, File dst) {
 
-		ArchiveInputStream is = getStream(src.getAbsolutePath());
-		extract(is, new File(dst.getAbsolutePath()));
+        ArchiveInputStream is = getStream(src.getAbsolutePath());
+        extract(is, new File(dst.getAbsolutePath()));
 
-	}
+    }
 
-	public static void extract(String src, File dst) {
+    public static void extract(String src, File dst) {
 
-		ArchiveInputStream is = getStream(src);
-		extract(is, new File(dst.getAbsolutePath()));
+        ArchiveInputStream is = getStream(src);
+        extract(is, new File(dst.getAbsolutePath()));
 
-	}
+    }
 
-	/**
-	 * Unpack data from the stream to specified directory.
-	 * 
-	 * @param in
-	 *            stream with tar data
-	 * @param outputDir
-	 *            destination directory
-	 * @return true in case of success, otherwise - false
-	 */
-	private static void extract(ArchiveInputStream in, File outputDir) {
-		try {
-			ArchiveEntry entry;
-			while ((entry = in.getNextEntry()) != null) {
-				// replace : for windows OS.
-				final File file = new File(outputDir, entry.getName()
-						.replaceAll(":", "_"));
+    /**
+     * Unpack data from the stream to specified directory.
+     *
+     * @param in stream with tar data
+     * @param outputDir destination directory
+     * @return true in case of success, otherwise - false
+     */
+    private static void extract(ArchiveInputStream in, File outputDir) {
+        try {
+            ArchiveEntry entry;
+            while ((entry = in.getNextEntry()) != null) {
+                // replace : for windows OS.
+                final File file = new File(outputDir, entry.getName()
+                        .replaceAll(":", "_"));
 
-				if (entry.isDirectory()) {
+                if (entry.isDirectory()) {
 
-					if (!file.exists()) {
-						file.mkdirs();
-					}
+                    if (!file.exists()) {
+                        file.mkdirs();
+                    }
 
-				} else {
-					file.getParentFile().mkdirs();
-					BufferedOutputStream out = new BufferedOutputStream(
-							new FileOutputStream(file), BUFFER_SIZE);
+                } else {
+                    file.getParentFile().mkdirs();
+                    BufferedOutputStream out = new BufferedOutputStream(
+                            new FileOutputStream(file), BUFFER_SIZE);
 
-					try {
+                    try {
 
-						IOUtils.copy(in, out);
-						out.flush();
+                        IOUtils.copy(in, out);
+                        out.flush();
 
-					} finally {
-						try {
-							out.close();
+                    } finally {
+                        try {
+                            out.close();
 
-						} catch (IOException e) {
-							// LOG.debug(
-							// "An error occurred while closing the output stream for file '{}'. Error: {}",
-							// file,
-							// e.getMessage() );
-						}
-					}
-				}
-			}
+                        } catch (IOException e) {
+                            // LOG.debug(
+                            // "An error occurred while closing the output stream for file '{}'. Error: {}",
+                            // file,
+                            // e.getMessage() );
+                        }
+                    }
+                }
+            }
 
-		} catch (IOException e) {
-			// LOG.debug("An error occurred while handling archive file. Error: {}",
-			// e.getMessage());
-		} finally {
-			if (in != null) {
-				try {
-					in.close();
-				} catch (IOException e) {
-					// LOG.debug(
-					// "An error occurred while closing the archive stream . Error: {}",
-					// e.getMessage() );
-				}
-			}
-		}
-	}
+        } catch (IOException e) {
+            // LOG.debug("An error occurred while handling archive file. Error: {}",
+            // e.getMessage());
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    // LOG.debug(
+                    // "An error occurred while closing the archive stream . Error: {}",
+                    // e.getMessage() );
+                }
+            }
+        }
+    }
 
-	/**
-	 * Obtains an apache compress {@link ArchiveInputStream} to the given
-	 * archive file.
-	 * 
-	 * @param src
-	 *            the archive file.
-	 * @return the stream.
-	 */
-	private static ArchiveInputStream getStream(String src) {
-		FileInputStream fis = null;
-		ArchiveInputStream is = null;
+    /**
+     * Obtains an apache compress {@link ArchiveInputStream} to the given
+     * archive file.
+     *
+     * @param src the archive file.
+     * @return the stream.
+     */
+    private static ArchiveInputStream getStream(String src) {
+        FileInputStream fis = null;
+        ArchiveInputStream is = null;
 
-		try {
+        try {
 
-			fis = new FileInputStream(src);
+            fis = new FileInputStream(src);
 
-			if (src.endsWith(".zip")) {
+            if (src.endsWith(".zip")) {
 
-				is = new ZipArchiveInputStream(fis);
+                is = new ZipArchiveInputStream(fis);
 
-			} else {
+            } else {
 
-				boolean zip = src.endsWith(".tgz") || src.endsWith(".gz");
-				InputStream imp = (zip) ? new GZIPInputStream(fis, BUFFER_SIZE)
-						: new BufferedInputStream(fis, BUFFER_SIZE);
-				is = new TarArchiveInputStream(imp, BUFFER_SIZE);
+                boolean zip = src.endsWith(".tgz") || src.endsWith(".gz");
+                InputStream imp = (zip) ? new GZIPInputStream(fis, BUFFER_SIZE)
+                        : new BufferedInputStream(fis, BUFFER_SIZE);
+                is = new TarArchiveInputStream(imp, BUFFER_SIZE);
 
-			}
+            }
 
-		} catch (IOException e) {
-			// LOG.warn(
-			// "An error occurred while obtaining the stream to the archive '{}'. Error: {}",
-			// src, e.getMessage() );
-		}
-		return is;
-	}
+        } catch (IOException e) {
+            // LOG.warn(
+            // "An error occurred while obtaining the stream to the archive '{}'. Error: {}",
+            // src, e.getMessage() );
+        }
+        return is;
+    }
 }

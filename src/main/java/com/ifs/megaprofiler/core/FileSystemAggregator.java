@@ -12,21 +12,35 @@ import java.util.Iterator;
 import org.apache.commons.io.FileUtils;
 
 import com.ifs.megaprofiler.helper.FileExtractor;
+import com.ifs.megaprofiler.helper.Message;
 import com.ifs.megaprofiler.helper.MyLogger;
+import java.io.BufferedInputStream;
+import java.util.concurrent.BlockingQueue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * 
  * @author artur
  */
-public class FileSystemGatherer {
+public class FileSystemAggregator implements Runnable {
 
+	Message message;
+	protected BlockingQueue queue;
 	private Iterator<File> iterator;
 	private Iterator<File> iteratorArchive;
 	private static final String[] ARCHIVE_EXTENSIONS = { ".zip", ".tar",
 			".tar.gz", ".tgz", ".gz" };
+	private volatile boolean running = true;
+	String tmpDirPath;
 
-	public FileSystemGatherer(String path) throws IOException {
+	public FileSystemAggregator(String path, BlockingQueue queue,
+			Message message) throws IOException {
+		this.queue = queue;
+		this.message = message;
 		initialize(path);
+		tmpDirPath = FileUtils.getTempDirectory().getPath() + File.separator
+				+ "c3poarchives";
 	}
 
 	public boolean hasNext() {
@@ -34,6 +48,10 @@ public class FileSystemGatherer {
 			return true;
 		}
 		return iterator.hasNext();
+	}
+
+	public void terminate() {
+		running = false;
 	}
 
 	private void initialize(String path) throws IOException {
@@ -47,9 +65,12 @@ public class FileSystemGatherer {
 		this.iterator = FileUtils.iterateFiles(dir, null, true);
 	}
 
-	public InputStream getNext() throws IOException {
+	public InputStream getNext() throws IOException, InterruptedException {
 		if (iteratorArchive != null && iteratorArchive.hasNext()) {
-			return new FileInputStream(iteratorArchive.next());
+			File tmpFile = iteratorArchive.next();
+			// return new FileInputStream(tmpFile);
+			return new BufferedInputStream(new FileInputStream(tmpFile),
+					(int) tmpFile.length());
 		}
 		if (iterator == null) {
 			throw new IOException("ERROR! Filepath specified incorrectly");
@@ -59,9 +80,12 @@ public class FileSystemGatherer {
 		}
 		File file = iterator.next();
 		if (isXML(file.getName())) {
-			return new FileInputStream(file);
+
+			// return new FileInputStream(file);
+			return new BufferedInputStream(new FileInputStream(file),
+					(int) file.length());
 		} else if (isArchive(file.getName())) {
-			clearTmpDir();
+			removeTmpDir();
 			MyLogger.print("Extraction started from " + file.getName());
 			extractArchive(file.getAbsolutePath());
 			MyLogger.print("Extraction complete");
@@ -71,29 +95,19 @@ public class FileSystemGatherer {
 
 	}
 
-	private void clearTmpDir() throws IOException {
-		String tmp = FileUtils.getTempDirectory().getPath() + File.separator
-				+ "c3poarchives";
-
-		File tmpDir = new File(tmp);
+	private void removeTmpDir() throws IOException {
+		File tmpDir = new File(tmpDirPath);
 		FileUtils.deleteDirectory(tmpDir);
 
 	}
 
 	private void extractArchive(String filePath) throws IOException {
 
-		// TFile archive = new TFile(filePath);
-		String tmp = FileUtils.getTempDirectory().getPath() + File.separator
-				+ "c3poarchives";// + File.separator + folder++;
-
-		File tmpDir = new File(tmp);
+		File tmpDir = new File(tmpDirPath);
 		if (!tmpDir.exists()) {
 			tmpDir.mkdirs();
 		}
 		FileExtractor.extract(filePath, tmpDir);
-		// TFile directory = new TFile(tmpDir);
-		// TFile.cp_r(archive, directory, TArchiveDetector.NULL,
-		// TArchiveDetector.NULL);
 		this.iteratorArchive = FileUtils.iterateFiles(tmpDir, null, true);
 	}
 
@@ -111,5 +125,22 @@ public class FileSystemGatherer {
 			return true;
 		}
 		return false;
+	}
+
+	@Override
+	public void run() {
+		try {
+			while (hasNext() && running) {
+				InputStream is = getNext();
+				if (is != null) {
+					queue.put(is);
+				}
+			}
+			message.makeItTrue();
+		} catch (Exception ex) {
+			Logger.getLogger(FileSystemAggregator.class.getName()).log(
+					Level.SEVERE, null, ex);
+		}
+
 	}
 }

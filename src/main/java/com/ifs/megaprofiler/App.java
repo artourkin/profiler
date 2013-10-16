@@ -1,6 +1,9 @@
 package com.ifs.megaprofiler;
 
 import com.ifs.megaprofiler.core.Controller;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Hello world! Oh yes! Hello, world :D
@@ -17,10 +20,16 @@ public class App {
 			return;
 		}
 		Controller ctr = new Controller();
-		if (args.length == 1) {
-			ctr.Execute(args[0], "");
-		} else {
-			ctr.Execute(args[0], args[1]);
+		try {
+			if (args.length == 1) {
+
+				ctr.Execute(args[0], "");
+
+			} else {
+				ctr.Execute(args[0], args[1]);
+			}
+		} catch (IOException ex) {
+			Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
 		}
 	}
 }

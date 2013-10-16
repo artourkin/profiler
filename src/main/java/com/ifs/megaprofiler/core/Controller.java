@@ -3,11 +3,15 @@ package com.ifs.megaprofiler.core;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import com.ifs.megaprofiler.elements.Document;
+import com.ifs.megaprofiler.helper.Message;
 import com.ifs.megaprofiler.helper.MyLogger;
+import com.ifs.megaprofiler.helper.MyPrinter;
 import com.ifs.megaprofiler.helper.XmlSerializer;
 import com.ifs.megaprofiler.maths.Maths;
+import java.io.InputStream;
 
 public class Controller {
 
@@ -22,39 +26,50 @@ public class Controller {
 	long time;
 	long timeReduce;
 	long timeMap;
-	Aggregator aggregator;
+	Parser aggregator;
 	Document result;
-	FileSystemGatherer fsgatherer;
+	FileSystemAggregator fsgatherer;
 	List<Document> chunk;
+	Message message;
+	Mapper mapper;
+	Reducer reducer;
+	static LinkedBlockingQueue<Document> queueDocument;
 
 	public Controller() {
 		count = 0;
+		queueDocument = new LinkedBlockingQueue<Document>();
+		message = new Message();
 	}
 
-	public void Execute(String path, String profilepath) {
+	public void Execute(String path, String profilepath) throws IOException {
 		if (path == null || path == "") {
-			System.out.println("Please provide a path to FITS results");
+			MyPrinter.print("Please provide a path to FITS results\n");
 			return;
 		}
-		System.out.println("Process started");
+		MyPrinter.print("Process started\n");
 		MyLogger.print("Process started");
 		try {
 			initialize(path);
 		} catch (Exception e) {
-			MyLogger.print(Aggregator.class.getName() + ", exception:"
+			MyLogger.print(Parser.class.getName() + ", exception:"
 					+ e.getMessage());
 			return;
 		}
-		map();
-		terminate();
-		serializeResults(profilepath);
-		System.out.println("Process finished");
+		// map();
+		// terminate();
+		mapper = new Mapper(path, queueDocument, this.message);
+		reducer = new Reducer(queueDocument, this.message);
+		mapper.run();
+		reducer.run();
+		serializeResults(reducer.getDocument(), profilepath);
+		MyPrinter.print("Process finished\n");
 		MyLogger.print("Process finished");
 	}
 
-	private void initialize(String path) throws IOException {
+	private void initialize(String path) {
+		MyPrinter.print("Initialization...\n");
 		MyLogger.print("Initialization...");
-		aggregator = new Aggregator();
+		// aggregator = new Aggregator(queueIS);
 		result = null;
 		chunk = new ArrayList<Document>();
 		start = System.currentTimeMillis();
@@ -67,72 +82,24 @@ public class Controller {
 		time = 0;
 		timeReduce = 0;
 		timeMap = 0;
-		fsgatherer = new FileSystemGatherer(path);
+		// fsgatherer = new FileSystemGatherer(path,queueIS);
+		MyPrinter.print("Initialization complete\n");
 		MyLogger.print("Initialization complete");
-	}
-
-	private void map() { // parses documents and maps results to a chunk
-		while (true) {
-			try {
-				Document doc = aggregator.parseDocument(fsgatherer.getNext());
-				if (doc != null) {
-					totalcount++;
-					chunk.add(doc);
-				}
-			} catch (Exception e) {
-				MyLogger.print(Aggregator.class.getName() + ", exception:"
-						+ e.getMessage());
-			}
-			if (totalcount % chunkmaxsize == 0) {
-				stopMap = System.currentTimeMillis();
-				timeMapTmp = stopMap - stopReduce;
-				timeMap += timeMapTmp;
-				reduce();
-			}
-			if (!fsgatherer.hasNext()) {
-				break;
-			}
-		}
-		reduce();
-	}
-
-	private void reduce() { // reduces elements within a chunk to a single
-		// result
-		if (chunk.size() < 1) {
-			return;
-		}
-		try {
-			result = Maths.reduce(result, Maths.reduce(chunk));
-		} catch (Exception e) {
-			MyLogger.print(Aggregator.class.getName() + ", exception:"
-					+ e.getMessage());
-		}
-		stopReduce = System.currentTimeMillis();
-		timeReduceTmp = stopReduce - stopMap;
-		timeReduce += timeReduceTmp;
-		System.out.print("\r" + totalcount + " files processed in "
-				+ (stopReduce - start) / 1000.0 + "s    ");
-		MyLogger.print(totalcount + " files processed in "
-				+ (stopReduce - start) / 1000.0 + "s (map/reduce: "
-				+ timeMapTmp / 1000.0 + "/" + timeReduceTmp / 1000.0 + "s)");
-		chunk.clear();
-
 	}
 
 	private void terminate() {
 		long stop = System.currentTimeMillis();
 		time = stop - start;
-
+		mapper.terminate();
+		reducer.terminate();
 		if (totalcount == 0) {
-			System.out.print("\r" + totalcount + " files processed in "
-					+ (stopReduce - start) / 1000.0 + "s    \n");
-			MyLogger.print(totalcount + " files processed in "
-					+ (stopReduce - start) / 1000.0 + "s (map/reduce: "
-					+ timeMapTmp / 1000.0 + "/" + timeReduceTmp / 1000.0 + "s)");
-
+			MyPrinter.print("\r" + totalcount + " files processed in " + time
+					/ 1000.0 + "s    \n");
+			MyLogger.print(totalcount + " files processed in " + time / 1000.0
+					+ "s (map/reduce: " + timeMapTmp / 1000.0 + "/"
+					+ timeReduceTmp / 1000.0 + "s)");
 		} else {
-
-			System.out.println("\nTotal elapsed time: " + time / 1000.0
+			MyPrinter.print("\nTotal elapsed time: " + time / 1000.0
 					+ "s (map/reduce: " + timeMap / 1000.0 + "/" + timeReduce
 					/ 1000.0 + "s)");
 			MyLogger.print("[RESULT] Total elapsed time: " + time / 1000.0
@@ -143,19 +110,17 @@ public class Controller {
 			float timeMapAvg = (float) ((timeMap * chunkmaxsize) / (1000.0 * totalcount));
 			float timeReduceAvg = (float) ((timeReduce * chunkmaxsize) / (1000.0 * totalcount));
 			System.out.println("Average time: " + avgTime + "s per "
-					+ chunkmaxsize + " files (map/reduce: " + timeMapAvg + "/"
-					+ timeReduceAvg + "s)");
+					+ chunkmaxsize + " files");
 			MyLogger.print("[RESULT] Average time: " + avgTime + "s per "
-					+ chunkmaxsize + " files (map/reduce: " + timeMapAvg + "/"
-					+ timeReduceAvg + "s)");
+					+ chunkmaxsize + " files");
 		}
 		this.count = totalcount;
 	}
 
-	private void serializeResults(String profilepath) {
-		XmlSerializer.printDocument(result, profilepath + "profile.xml", false);
-		TranslatorC3PO.printDocument(result, profilepath + "profilec3po.xml",
+	private void serializeResults(Document document, String profilepath) {
+		XmlSerializer.printDocument(document, profilepath + "profile.xml",
+				false);
+		TranslatorC3PO.printDocument(document, profilepath + "profilec3po.xml",
 				false);
 	}
-
 }

@@ -5,37 +5,37 @@
 package com.ifs.megaprofiler.elements;
 
 /**
- * 
+ *
  * @author artur
  */
 public class Document {
 
-	public String name;
-	public Node root;
+    public String name;
+    public Node root;
 
-	public Document() {
-		name = "";
-		root = new Node();
-	}
+    public Document() {
+        name = "";
+        root = new Node();
+    }
 
-	public Document(String name, Node root) {
-		this.name = name;
-		this.root = root;
-	}
+    public Document(String name, Node root) {
+        this.name = name;
+        this.root = root;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public String getName() {
-		return this.name;
-	}
+    public String getName() {
+        return this.name;
+    }
 
-	public void setRoot(Node root) {
-		this.root = root;
-	}
+    public void setRoot(Node root) {
+        this.root = root;
+    }
 
-	public Node getRoot() {
-		return this.root;
-	}
+    public Node getRoot() {
+        return this.root;
+    }
 }

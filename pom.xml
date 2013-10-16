@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.ifs</groupId>
 	<artifactId>Megaprofiler</artifactId>
-	<version>0.6</version>
+	<version>0.7</version>
 	<packaging>jar</packaging>
 	<name>Megaprofiler</name>
 	<url>http://maven.apache.org</url>
@@ -53,11 +53,6 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-compress</artifactId>
 			<version>1.5</version>
-		</dependency>
-		<dependency>
-			<groupId>com.dadrox</groupId>
-			<artifactId>quiet-slf4j</artifactId>
-			<version>0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
