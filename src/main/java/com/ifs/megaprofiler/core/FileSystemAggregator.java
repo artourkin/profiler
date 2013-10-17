@@ -6,6 +6,7 @@ package com.ifs.megaprofiler.core;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
@@ -65,7 +66,7 @@ public class FileSystemAggregator implements Runnable {
 		this.iterator = FileUtils.iterateFiles(dir, null, true);
 	}
 
-	public InputStream getNext() throws IOException, InterruptedException {
+	public InputStream getNext() throws IOException  {
 		if (iteratorArchive != null && iteratorArchive.hasNext()) {
 			File tmpFile = iteratorArchive.next();
 			// return new FileInputStream(tmpFile);
@@ -86,9 +87,9 @@ public class FileSystemAggregator implements Runnable {
 					(int) file.length());
 		} else if (isArchive(file.getName())) {
 			removeTmpDir();
-			MyLogger.print("Extraction started from " + file.getName());
+			//MyLogger.print("Extraction started from " + file.getName());
 			extractArchive(file.getAbsolutePath());
-			MyLogger.print("Extraction complete");
+			//MyLogger.print("Extraction complete");
 			return getNext();
 		}
 		return null;
@@ -129,24 +130,19 @@ public class FileSystemAggregator implements Runnable {
 
 	@Override
 	public void run() {
+		InputStream is = null;
 		while (hasNext() && running) {
-			InputStream is = null;
+			is = null;
 			try {
 				is = getNext();
+				if (is != null) {
+					queue.put(is);
+				}
 			} catch (Exception e) {
 				MyLogger.print(Parser.class.getName() + ", exception:"
 						+ e.getMessage());
 			}
-			if (is != null) {
-				try {
-					queue.put(is);
-				} catch (Exception e) {
-					MyLogger.print(Parser.class.getName() + ", exception:"
-							+ e.getMessage());
-				}
-			}
 		}
 		message.makeItTrue();
-
 	}
 }

@@ -54,19 +54,21 @@ public class Parser implements Runnable {
 
 	@Override
 	public void run() {
-		try {
-			while (running) {
-				InputStream is = queueIS.take();
+		InputStream is=null;
+		while (running) {
+			try {
+				is = queueIS.take();
 				Document = parseDocument(is);
 				is.close();
 				if (Document != null) {
 					queueDocument.put(Document);
 				}
+			} catch (Exception e) {
+				MyLogger.print(Parser.class.getName() + ", exception:"
+						+ e.getMessage());
 			}
-		} catch (Exception e) {
-			MyLogger.print(Parser.class.getName() + ", exception:"
-					+ e.getMessage());
 		}
+
 	}
 
 	public void terminate() {

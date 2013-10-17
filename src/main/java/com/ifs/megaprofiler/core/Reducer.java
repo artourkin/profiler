@@ -24,7 +24,7 @@ public class Reducer implements Runnable {
 	static LinkedBlockingQueue<Document> queueDocument;
 	Message message;
 	long totalcount;
-	long chunkmaxsize;
+	long chunkmaxsize, reportsize;
 	long start, stop, tmpStop;
 	long startReduce, stopReduce, TotalReduce, startMap, time, timeReduce,
 			timeReduceTmp, stopMap, timeMap, timeMapTmp;
@@ -36,6 +36,7 @@ public class Reducer implements Runnable {
 		this.message = message;
 		totalcount = 0;
 		chunkmaxsize = 1000;
+		reportsize = 100000;
 		start = 0;
 		stop = 0;
 		tmpStop = 0;
@@ -46,41 +47,48 @@ public class Reducer implements Runnable {
 
 	@Override
 	public void run() {
-		try {
-			start = System.currentTimeMillis();
-			stopReduce = System.currentTimeMillis();
-			stopMap = System.currentTimeMillis();
-			int listSize = 0;
-			int count = 0;
-			while ((!queueDocument.isEmpty() || !message.isTrue()) && running) {
+
+		start = System.currentTimeMillis();
+		stopReduce = System.currentTimeMillis();
+		stopMap = System.currentTimeMillis();
+		int listSize = 0;
+		int count = 0;
+		while ((!queueDocument.isEmpty() || !message.isTrue()) && running) {
+			try {
 				queueDocument.drainTo(listDocument);
 				listSize = listDocument.size();
 				if (listSize > chunkmaxsize) {
 					totalcount += listSize;
 					count += listSize;
-					if (count > 100000) {
+					if (count > reportsize) {
 						mapStats();
 					}
 					result = Maths.reduce(result, Maths.reduce(listDocument));
 					listDocument.clear();
-					if (count > 100000) {
+					if (count > reportsize) {
 						reduceStats();
 						count = 0;
 					}
 				}
+			} catch (Exception e) {
+				MyLogger.print(Parser.class.getName() + ", exception:"
+						+ e.getMessage());
 			}
-			if (listSize > 0) {
-				totalcount += listSize;
-				mapStats();
-				result = Maths.reduce(result, Maths.reduce(listDocument));
-				listDocument.clear();
-				reduceStats();
-			}
-			finalStats();
-		} catch (Exception e) {
-			MyLogger.print(Parser.class.getName() + ", exception:"
-					+ e.getMessage());
 		}
+		if (listSize > 0) {
+			totalcount += listSize;
+			mapStats();
+			try {
+				result = Maths.reduce(result, Maths.reduce(listDocument));
+			} catch (Exception e) {
+				MyLogger.print(Parser.class.getName() + ", exception:"
+						+ e.getMessage());
+			}
+			listDocument.clear();
+			reduceStats();
+		}
+		finalStats();
+
 	}
 
 	private void finalStats() {
@@ -108,7 +116,7 @@ public class Reducer implements Runnable {
 		MyPrinter.print("\r" + totalcount + " files processed in "
 				+ (stopReduce - start) / 1000.0 + "s    ");
 		MyLogger.print(totalcount + " files processed in "
-				+ (stopReduce - start) / 1000.0 + "s (map/reduce: "
+				+ (stopReduce - start) / 1000.0 + "s (map/reduce per " + reportsize + " files: "
 				+ timeMapTmp / 1000.0 + "/" + timeReduceTmp / 1000.0 + "s)");
 		timeReduceTmp = 0;
 		timeMapTmp = 0;
