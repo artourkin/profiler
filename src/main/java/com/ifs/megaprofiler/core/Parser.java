@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.dom4j.Attribute;
 import org.dom4j.Document;
 import org.dom4j.Element;
@@ -16,10 +17,13 @@ import org.dom4j.io.SAXReader;
 
 import com.ifs.megaprofiler.elements.Node;
 import com.ifs.megaprofiler.elements.Property;
+import com.ifs.megaprofiler.helper.Message;
 import com.ifs.megaprofiler.helper.MyLogger;
 import com.ifs.megaprofiler.helper.ResourceLoader;
+
 import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
+
 import org.dom4j.DocumentException;
 
 /**
@@ -38,9 +42,12 @@ public class Parser implements Runnable {
 	List<String> statsList;
 	com.ifs.megaprofiler.elements.Document Document;
 	volatile boolean running = true;
+	Message message;
 
-	public Parser(BlockingQueue<InputStream> queueIS,
-			BlockingQueue<com.ifs.megaprofiler.elements.Document> queueDocument) {
+	public Parser(
+			BlockingQueue<InputStream> queueIS,
+			BlockingQueue<com.ifs.megaprofiler.elements.Document> queueDocument,
+			Message message) {
 		this.queueIS = queueIS;
 		this.queueDocument = queueDocument;
 		reader = new SAXReader();
@@ -48,14 +55,15 @@ public class Parser implements Runnable {
 		allowedElements = ResourceLoader.getAllowedElements();
 		statsMap = new HashMap<String, String[]>();
 		statsMap.put("size", statsNodes);
+		this.message = message;
 	}
 
 	long totalcount = 0;
 
 	@Override
 	public void run() {
-		InputStream is=null;
-		while (running) {
+		InputStream is = null;
+		while (!queueIS.isEmpty() || !message.aggregationIsFinished()) {
 			try {
 				is = queueIS.take();
 				Document = parseDocument(is);
@@ -68,7 +76,7 @@ public class Parser implements Runnable {
 						+ e.getMessage());
 			}
 		}
-
+		message.finishParsing();
 	}
 
 	public void terminate() {

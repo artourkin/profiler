@@ -53,9 +53,10 @@ public class Reducer implements Runnable {
 		stopMap = System.currentTimeMillis();
 		int listSize = 0;
 		int count = 0;
-		while ((!queueDocument.isEmpty() || !message.isTrue()) && running) {
+		while (!queueDocument.isEmpty() || !message.parsingIsFinished()) {
 			try {
-				queueDocument.drainTo(listDocument);
+				Document tmpDoc = queueDocument.take();
+				listDocument.add(tmpDoc);
 				listSize = listDocument.size();
 				if (listSize > chunkmaxsize) {
 					totalcount += listSize;
@@ -116,8 +117,9 @@ public class Reducer implements Runnable {
 		MyPrinter.print("\r" + totalcount + " files processed in "
 				+ (stopReduce - start) / 1000.0 + "s    ");
 		MyLogger.print(totalcount + " files processed in "
-				+ (stopReduce - start) / 1000.0 + "s (map/reduce per " + reportsize + " files: "
-				+ timeMapTmp / 1000.0 + "/" + timeReduceTmp / 1000.0 + "s)");
+				+ (stopReduce - start) / 1000.0 + "s (map/reduce per "
+				+ reportsize + " files: " + timeMapTmp / 1000.0 + "/"
+				+ timeReduceTmp / 1000.0 + "s)");
 		timeReduceTmp = 0;
 		timeMapTmp = 0;
 		stopReduce = System.currentTimeMillis();

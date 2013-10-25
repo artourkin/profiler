@@ -143,6 +143,6 @@ public class FileSystemAggregator implements Runnable {
 						+ e.getMessage());
 			}
 		}
-		message.makeItTrue();
+		message.finishAggregation();
 	}
 }

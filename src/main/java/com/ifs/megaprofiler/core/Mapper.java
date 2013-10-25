@@ -30,7 +30,7 @@ public class Mapper implements Runnable {
 		this.message = message;
 		queueIS = new LinkedBlockingQueue<InputStream>(1000);
 		fsAggregator = new FileSystemAggregator(path, queueIS, this.message);
-		parser = new Parser(queueIS, this.queueDocument);
+		parser = new Parser(queueIS, this.queueDocument, this.message);
 
 	}
 

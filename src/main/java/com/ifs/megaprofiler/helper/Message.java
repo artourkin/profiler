@@ -4,6 +4,12 @@
  */
 package com.ifs.megaprofiler.helper;
 
+import java.util.concurrent.Semaphore;
+
+import org.apache.commons.io.filefilter.TrueFileFilter;
+
+import com.ifs.megaprofiler.core.Parser;
+
 /**
  * 
  * @author artur
@@ -11,20 +17,40 @@ package com.ifs.megaprofiler.helper;
 public class Message {
 
 	boolean value;
+	Semaphore semaphoreParsing, semaphoreAggregation;
 
 	public Message() {
 		value = false;
+		semaphoreAggregation = new Semaphore(1);
+		semaphoreParsing = new Semaphore(1);
+		try {
+			semaphoreAggregation.acquire();
+			semaphoreParsing.acquire();
+		} catch (Exception e) {
+			MyLogger.print(Parser.class.getName() + ", exception:"
+					+ e.getMessage());
+			return;
+		}
 	}
 
-	public boolean isTrue() {
-		return value;
+	public boolean aggregationIsFinished() {
+		if (semaphoreAggregation.availablePermits() > 0)
+			return true;
+		return false;
 	}
 
-	public void makeItTrue() {
-		value = true;
+	public boolean parsingIsFinished() {
+		if (semaphoreParsing.availablePermits() > 0)
+			return true;
+		return false;
 	}
 
-	public void makeItFalse() {
-		value = false;
+	public void finishAggregation() {
+		semaphoreAggregation.release();
 	}
+
+	public void finishParsing() {
+		semaphoreParsing.release();
+	}
+
 }
