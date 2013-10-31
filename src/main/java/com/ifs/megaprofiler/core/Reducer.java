@@ -13,6 +13,7 @@ import com.ifs.megaprofiler.maths.Maths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 
@@ -53,20 +54,23 @@ public class Reducer implements Runnable {
 		stopMap = System.currentTimeMillis();
 		int listSize = 0;
 		int count = 0;
-		while (!queueDocument.isEmpty() || !message.parsingIsFinished()) {
+		while (!(queueDocument.isEmpty() && message.aggregationIsFinished())) {
 			try {
-				Document tmpDoc = queueDocument.take();
+				Document tmpDoc = queueDocument.poll(100, TimeUnit.SECONDS);
+				if (tmpDoc == null) {
+					break;
+				}
 				listDocument.add(tmpDoc);
 				listSize = listDocument.size();
-				if (listSize > chunkmaxsize) {
+				if (listSize >= chunkmaxsize) {
 					totalcount += listSize;
 					count += listSize;
-					if (count > reportsize) {
+					if (count >= reportsize) {
 						mapStats();
 					}
 					result = Maths.reduce(result, Maths.reduce(listDocument));
 					listDocument.clear();
-					if (count > reportsize) {
+					if (count >= reportsize) {
 						reduceStats();
 						count = 0;
 					}

@@ -23,6 +23,7 @@ import com.ifs.megaprofiler.helper.ResourceLoader;
 
 import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import org.dom4j.DocumentException;
 
@@ -63,9 +64,12 @@ public class Parser implements Runnable {
 	@Override
 	public void run() {
 		InputStream is = null;
-		while (!queueIS.isEmpty() || !message.aggregationIsFinished()) {
+		while (!(queueIS.isEmpty() && message.aggregationIsFinished())) {
 			try {
-				is = queueIS.take();
+				is = queueIS.poll(100, TimeUnit.SECONDS);
+				if (is == null) {
+					break;
+				}
 				Document = parseDocument(is);
 				is.close();
 				if (Document != null) {

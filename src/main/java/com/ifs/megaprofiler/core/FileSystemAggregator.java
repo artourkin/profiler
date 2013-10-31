@@ -131,7 +131,7 @@ public class FileSystemAggregator implements Runnable {
 	@Override
 	public void run() {
 		InputStream is = null;
-		while (hasNext() && running) {
+		while (hasNext()) {
 			is = null;
 			try {
 				is = getNext();

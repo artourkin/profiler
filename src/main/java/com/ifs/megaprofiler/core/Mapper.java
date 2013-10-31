@@ -22,6 +22,7 @@ public class Mapper implements Runnable {
 	Parser parser;
 	FileSystemAggregator fsAggregator;
 	Message message;
+	Thread aggThread,parseThread; 
 	volatile boolean running = true;
 
 	public Mapper(String path, LinkedBlockingQueue<Document> queueDocument,
@@ -44,14 +45,18 @@ public class Mapper implements Runnable {
 
 	@Override
 	public void run() {
-		new Thread(fsAggregator).start();
-		new Thread(parser).start();
+		aggThread = new Thread(fsAggregator);
+		parseThread = new Thread(parser);
 
+		aggThread.start();
+		parseThread.start();
 	}
 
 	public void terminate() {
 		running = false;
 		fsAggregator.terminate();
 		parser.terminate();
+		aggThread.interrupt();
+		parseThread.interrupt();
 	}
 }
