@@ -15,7 +15,7 @@
  * the License.
  * ****************************************************************************
  */
-package com.ifs.megaprofiler.helper;
+package com.ifs.directprofiler.helper;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;

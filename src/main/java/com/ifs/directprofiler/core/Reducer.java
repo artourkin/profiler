@@ -2,13 +2,13 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.ifs.megaprofiler.core;
+package com.ifs.directprofiler.core;
 
-import com.ifs.megaprofiler.elements.Document;
-import com.ifs.megaprofiler.helper.Message;
-import com.ifs.megaprofiler.helper.MyLogger;
-import com.ifs.megaprofiler.helper.MyPrinter;
-import com.ifs.megaprofiler.maths.Maths;
+import com.ifs.directprofiler.elements.Document;
+import com.ifs.directprofiler.helper.Message;
+import com.ifs.directprofiler.helper.MyLogger;
+import com.ifs.directprofiler.helper.MyPrinter;
+import com.ifs.directprofiler.maths.Maths;
 
 import java.util.ArrayList;
 import java.util.List;

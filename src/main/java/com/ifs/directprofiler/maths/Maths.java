@@ -2,16 +2,16 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.ifs.megaprofiler.maths;
+package com.ifs.directprofiler.maths;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-import com.ifs.megaprofiler.elements.Document;
-import com.ifs.megaprofiler.elements.Node;
-import com.ifs.megaprofiler.elements.Property;
+import com.ifs.directprofiler.elements.Document;
+import com.ifs.directprofiler.elements.Node;
+import com.ifs.directprofiler.elements.Property;
 
 /**
  *

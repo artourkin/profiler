@@ -2,13 +2,13 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.ifs.megaprofiler.helper;
+package com.ifs.directprofiler.helper;
 
 import java.util.concurrent.Semaphore;
 
 import org.apache.commons.io.filefilter.TrueFileFilter;
 
-import com.ifs.megaprofiler.core.Parser;
+import com.ifs.directprofiler.core.Parser;
 
 /**
  * 

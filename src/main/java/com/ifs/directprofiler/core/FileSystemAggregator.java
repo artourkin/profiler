@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.ifs.megaprofiler.core;
+package com.ifs.directprofiler.core;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -10,11 +10,13 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
+
 import org.apache.commons.io.FileUtils;
 
-import com.ifs.megaprofiler.helper.FileExtractor;
-import com.ifs.megaprofiler.helper.Message;
-import com.ifs.megaprofiler.helper.MyLogger;
+import com.ifs.directprofiler.helper.FileExtractor;
+import com.ifs.directprofiler.helper.Message;
+import com.ifs.directprofiler.helper.MyLogger;
+
 import java.io.BufferedInputStream;
 import java.util.concurrent.BlockingQueue;
 import java.util.logging.Level;

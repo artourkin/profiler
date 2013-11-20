@@ -2,11 +2,12 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.ifs.megaprofiler.core;
+package com.ifs.directprofiler.core;
 
-import com.ifs.megaprofiler.elements.Document;
-import com.ifs.megaprofiler.helper.Message;
-import com.ifs.megaprofiler.helper.MyLogger;
+import com.ifs.directprofiler.elements.Document;
+import com.ifs.directprofiler.helper.Message;
+import com.ifs.directprofiler.helper.MyLogger;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.LinkedBlockingQueue;

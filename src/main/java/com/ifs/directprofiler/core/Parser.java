@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.ifs.megaprofiler.core;
+package com.ifs.directprofiler.core;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -15,11 +15,11 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
-import com.ifs.megaprofiler.elements.Node;
-import com.ifs.megaprofiler.elements.Property;
-import com.ifs.megaprofiler.helper.Message;
-import com.ifs.megaprofiler.helper.MyLogger;
-import com.ifs.megaprofiler.helper.ResourceLoader;
+import com.ifs.directprofiler.elements.Node;
+import com.ifs.directprofiler.elements.Property;
+import com.ifs.directprofiler.helper.Message;
+import com.ifs.directprofiler.helper.MyLogger;
+import com.ifs.directprofiler.helper.ResourceLoader;
 
 import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
@@ -34,20 +34,20 @@ import org.dom4j.DocumentException;
 public class Parser implements Runnable {
 
 	protected BlockingQueue<InputStream> queueIS;
-	protected BlockingQueue<com.ifs.megaprofiler.elements.Document> queueDocument;
+	protected BlockingQueue<com.ifs.directprofiler.elements.Document> queueDocument;
 	List<String> Vocabulary;
 	SAXReader reader;
 	List<String> allowedElements;
 	final String[] statsNodes = { "min", "max", "sd", "avg", "var" };
 	Map<String, String[]> statsMap;
 	List<String> statsList;
-	com.ifs.megaprofiler.elements.Document Document;
+	com.ifs.directprofiler.elements.Document Document;
 	volatile boolean running = true;
 	Message message;
 
 	public Parser(
 			BlockingQueue<InputStream> queueIS,
-			BlockingQueue<com.ifs.megaprofiler.elements.Document> queueDocument,
+			BlockingQueue<com.ifs.directprofiler.elements.Document> queueDocument,
 			Message message) {
 		this.queueIS = queueIS;
 		this.queueDocument = queueDocument;
@@ -87,9 +87,9 @@ public class Parser implements Runnable {
 		running = false;
 	}
 
-	public com.ifs.megaprofiler.elements.Document parseDocument(
+	public com.ifs.directprofiler.elements.Document parseDocument(
 			InputStream input) throws DocumentException, IOException {
-		com.ifs.megaprofiler.elements.Document result = new com.ifs.megaprofiler.elements.Document();
+		com.ifs.directprofiler.elements.Document result = new com.ifs.directprofiler.elements.Document();
 		if (input == null) {
 			return null;
 		}
@@ -140,7 +140,7 @@ public class Parser implements Runnable {
 		if (!strict && element == null) {
 			return null;
 		}
-		com.ifs.megaprofiler.elements.Node result = new Node();
+		com.ifs.directprofiler.elements.Node result = new Node();
 		result.name = element.getName();
 		List<Property> properties = mapAttributes(element, strict);
 		if (properties != null) {

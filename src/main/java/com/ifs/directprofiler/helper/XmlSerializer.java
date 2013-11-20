@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.ifs.megaprofiler.helper;
+package com.ifs.directprofiler.helper;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -15,9 +15,9 @@ import org.dom4j.Element;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
 
-import com.ifs.megaprofiler.App;
-import com.ifs.megaprofiler.elements.Node;
-import com.ifs.megaprofiler.elements.Property;
+import com.ifs.directprofiler.App;
+import com.ifs.directprofiler.elements.Node;
+import com.ifs.directprofiler.elements.Property;
 
 /**
  *
@@ -26,7 +26,7 @@ import com.ifs.megaprofiler.elements.Property;
 public class XmlSerializer {
 
     public static Document createDocument(
-            com.ifs.megaprofiler.elements.Document document) {
+            com.ifs.directprofiler.elements.Document document) {
         Document result = DocumentHelper.createDocument();
         Element root = result.addElement(document.root.name);
         parseNode(document.root, root);
@@ -35,7 +35,7 @@ public class XmlSerializer {
     }
 
     public static void printDocument(
-            com.ifs.megaprofiler.elements.Document document, String filename,
+            com.ifs.directprofiler.elements.Document document, String filename,
             boolean consoleOutput) {
         if (document == null) {
             return;

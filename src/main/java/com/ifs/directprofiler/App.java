@@ -1,6 +1,7 @@
-package com.ifs.megaprofiler;
+package com.ifs.directprofiler;
 
-import com.ifs.megaprofiler.core.Controller;
+import com.ifs.directprofiler.core.Controller;
+
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;

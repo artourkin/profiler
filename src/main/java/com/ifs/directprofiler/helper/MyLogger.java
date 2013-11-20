@@ -1,4 +1,4 @@
-package com.ifs.megaprofiler.helper;
+package com.ifs.directprofiler.helper;
 
 import java.io.File;
 import java.io.IOException;

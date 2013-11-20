@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.ifs.megaprofiler.elements;
+package com.ifs.directprofiler.elements;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +10,8 @@ import java.util.List;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
-import com.ifs.megaprofiler.maths.Maths;
+import com.ifs.directprofiler.maths.Maths;
+
 import javax.naming.spi.DirStateFactory;
 
 /**

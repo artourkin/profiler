@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.ifs.megaprofiler.core;
+package com.ifs.directprofiler.core;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -27,9 +27,9 @@ import org.dom4j.tree.DefaultAttribute;
 import org.dom4j.tree.DefaultDocument;
 import org.dom4j.tree.DefaultElement;
 
-import com.ifs.megaprofiler.App;
-import com.ifs.megaprofiler.elements.Node;
-import com.ifs.megaprofiler.helper.MyLogger;
+import com.ifs.directprofiler.App;
+import com.ifs.directprofiler.elements.Node;
+import com.ifs.directprofiler.helper.MyLogger;
 
 /**
  *
@@ -41,7 +41,7 @@ public class TranslatorC3PO {
         "puid", "format_version"};
 
     public static Document createDocument(
-            com.ifs.megaprofiler.elements.Document document) {
+            com.ifs.directprofiler.elements.Document document) {
         // Document result = DocumentHelper.createDocument();
         // Element root = result.addElement(document.root.name);
         // parseNode(document.root, root);
@@ -50,7 +50,7 @@ public class TranslatorC3PO {
     }
 
     public static void printDocument(
-            com.ifs.megaprofiler.elements.Document document, String filename,
+            com.ifs.directprofiler.elements.Document document, String filename,
             boolean consoleOutput) {
         if (document == null) {
             return;
@@ -74,7 +74,7 @@ public class TranslatorC3PO {
         }
     }
 
-    public static Document run(com.ifs.megaprofiler.elements.Document document) {
+    public static Document run(com.ifs.directprofiler.elements.Document document) {
         Document result = new DefaultDocument();
         Element root = new DefaultElement("profile");
         root.add(new DefaultAttribute("xmlns",
@@ -91,7 +91,7 @@ public class TranslatorC3PO {
         return result;
     }
 
-    static Element getPartition(com.ifs.megaprofiler.elements.Node root) {
+    static Element getPartition(com.ifs.directprofiler.elements.Node root) {
         Element result = new DefaultElement("partition");
         result.add(new DefaultAttribute("count", Long.toString(root.count)));
         Element filter = new DefaultElement("filter");
