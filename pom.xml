@@ -2,10 +2,8 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.ifs</groupId>
-	<artifactId>Megaprofiler</artifactId>
-	<version>0.7</version>
+	<version>0.8</version>
 	<packaging>jar</packaging>
-	<name>Megaprofiler</name>
 	<url>http://maven.apache.org</url>
 	<build>
 		<plugins>
@@ -84,4 +82,6 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
+	<artifactId>DirectProfiler</artifactId>
+	<name>DirectProfiler</name>
 </project>
