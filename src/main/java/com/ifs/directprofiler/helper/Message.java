@@ -6,8 +6,6 @@ package com.ifs.directprofiler.helper;
 
 import java.util.concurrent.Semaphore;
 
-import org.apache.commons.io.filefilter.TrueFileFilter;
-
 import com.ifs.directprofiler.core.Parser;
 
 /**

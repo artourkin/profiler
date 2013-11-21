@@ -12,8 +12,6 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import com.ifs.directprofiler.maths.Maths;
 
-import javax.naming.spi.DirStateFactory;
-
 /**
  *
  * @author artur

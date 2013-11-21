@@ -9,7 +9,7 @@ import org.apache.commons.io.FileUtils;
 public class MyLogger {
 
 	static File file;
-	static String path = "logs/megaprofiler.log";
+	static String path = "logs/directprofiler.log";
 	static Object lock = new Object();
 
 	public static void print(String text) {

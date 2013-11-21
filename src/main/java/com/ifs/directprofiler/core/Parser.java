@@ -4,14 +4,18 @@
  */
 package com.ifs.directprofiler.core;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import org.dom4j.Attribute;
 import org.dom4j.Document;
+import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
@@ -20,12 +24,6 @@ import com.ifs.directprofiler.elements.Property;
 import com.ifs.directprofiler.helper.Message;
 import com.ifs.directprofiler.helper.MyLogger;
 import com.ifs.directprofiler.helper.ResourceLoader;
-
-import java.io.IOException;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.TimeUnit;
-
-import org.dom4j.DocumentException;
 
 /**
  * 

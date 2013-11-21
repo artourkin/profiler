@@ -4,16 +4,16 @@
  */
 package com.ifs.directprofiler.core;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+
 import com.ifs.directprofiler.elements.Document;
 import com.ifs.directprofiler.helper.Message;
 import com.ifs.directprofiler.helper.MyLogger;
 import com.ifs.directprofiler.helper.MyPrinter;
 import com.ifs.directprofiler.maths.Maths;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 

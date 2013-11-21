@@ -4,13 +4,12 @@
  */
 package com.ifs.directprofiler.core;
 
-import com.ifs.directprofiler.elements.Document;
-import com.ifs.directprofiler.helper.Message;
-import com.ifs.directprofiler.helper.MyLogger;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.LinkedBlockingQueue;
+
+import com.ifs.directprofiler.elements.Document;
+import com.ifs.directprofiler.helper.Message;
 
 /**
  * 

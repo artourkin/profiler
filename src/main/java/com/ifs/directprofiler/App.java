@@ -1,10 +1,10 @@
 package com.ifs.directprofiler;
 
-import com.ifs.directprofiler.core.Controller;
-
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.ifs.directprofiler.core.Controller;
 
 /**
  * Hello world! Oh yes! Hello, world :D

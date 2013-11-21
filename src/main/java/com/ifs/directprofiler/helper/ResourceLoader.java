@@ -10,9 +10,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -30,21 +28,26 @@ public class ResourceLoader {
 		List<String> result = new ArrayList<String>();
 		BufferedReader br;
 		try {
-			URI uri = ClassLoader.getSystemResource("properties.list").toURI(); 
-			File file=new File(uri);
-			if (file != null && !file.exists()) {
-				file = new File("properties.list");
+			ResourceLoader.class.getClassLoader();
+			InputStream is = ClassLoader
+					.getSystemResourceAsStream("properties.list");
+			if (is == null) {
+				File file = new File("properties.list");
+
+				if (file != null && !file.exists()) {
+					file = new File(FileUtils.getUserDirectoryPath()
+							+ "properties.list");
+				}
+				if (file != null && !file.exists()) {
+					System.out
+							.println("Could not find 'properties.list'. Using an empty list");
+					return result;
+				}
+				br = new BufferedReader(new FileReader(file));
+			} else {
+				br = new BufferedReader(new InputStreamReader(is));
 			}
-			if (file != null && !file.exists()) {
-				file = new File(FileUtils.getUserDirectoryPath()
-						+ "properties.list");
-			}
-			if (file != null && !file.exists()) {
-				System.out
-						.println("Could not find 'properties.list'. Using an empty list");
-				return result;
-			}
-			br = new BufferedReader(new FileReader(file));
+
 			String line;
 			while ((line = br.readLine()) != null) {
 				result.add(line);
@@ -56,10 +59,7 @@ public class ResourceLoader {
 		} catch (IOException ex) {
 			Logger.getLogger(ResourceLoader.class.getName()).log(Level.SEVERE,
 					null, ex);
-		} catch (URISyntaxException ex) {
-			Logger.getLogger(ResourceLoader.class.getName()).log(Level.SEVERE,
-					null, ex);
-		} 
+		}
 		return result;
 	}
 }
