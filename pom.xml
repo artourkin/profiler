@@ -12,7 +12,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>com.ifs.megaprofiler.App</mainClass>
+							<mainClass>com.ifs.directprofiler.App</mainClass>
 						</manifest>
 					</archive>
 					<descriptorRefs>
@@ -29,6 +29,15 @@
 					<target>1.6</target>
 				</configuration>
 			</plugin>
+			 <plugin>
+      <artifactId>maven-release-plugin</artifactId>
+      <version>2.4.1</version>
+      <configuration>
+        <useReleaseProfile>false</useReleaseProfile>
+        <releaseProfiles>release</releaseProfiles>
+        <autoVersionSubmodules>true</autoVersionSubmodules>
+      </configuration>
+    </plugin>
 		</plugins>
 	</build>
 	<properties>
@@ -73,6 +82,19 @@
 			<version>2.4</version>
 		</dependency>
 	</dependencies>
+	<distributionManagement>
+		<repository>
+			<id>bintray-artourkin-maven-directprofiler</id>
+			<name>artourkin-maven-directprofiler</name>
+			<url>https://api.bintray.com/maven/artourkin/maven/directprofiler</url>
+		</repository>
+	</distributionManagement>
+	<scm>
+ 	 <connection>scm:git:https://github.com/artourkin/profiler.git</connection>
+  <developerConnection>scm:git:git@github.com:artourkin/profiler.git</developerConnection>
+  <url>https://github.com/artourkin/profiler</url>
+  <tag>HEAD</tag>
+</scm>
 	<artifactId>DirectProfiler</artifactId>
 	<name>DirectProfiler</name>
 </project>
