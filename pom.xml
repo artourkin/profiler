@@ -79,6 +79,12 @@
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 		</dependency>
+        <dependency>
+            <groupId>com.google.caliper</groupId>
+            <artifactId>caliper</artifactId>
+            <version>1.0-beta-1</version>
+        </dependency>
+
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>

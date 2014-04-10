@@ -58,6 +58,7 @@ public class Property {
         this.key = key;
         this.value = value;
         this.type = Type.String;
+        this.sources=new ArrayList<Source>();
     }
 
     public Property(String key, String value, List<Source> sources) {

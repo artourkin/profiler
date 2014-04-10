@@ -54,4 +54,42 @@ public class ResourceLoader {
 		}
 		return result;
 	}
+
+
+    public static List<String> getLatticeProperties() {
+        List<String> result = new ArrayList<String>();
+        BufferedReader br;
+        try {
+            File file = new File("src/main/resources/lattice.properties");
+            if (!file.exists()) {
+                file = new File("lattice.properties");
+            }
+            if (!file.exists()) {
+                file = new File(FileUtils.getUserDirectoryPath()
+                        + "lattice.properties");
+            }
+            if (!file.exists()) {
+                System.out
+                        .println("Could not find 'properties.list'. Using an empty list");
+                return result;
+            }
+            br = new BufferedReader(new FileReader(file));
+            String line;
+            while ((line = br.readLine()) != null) {
+                result.add(line);
+            }
+            br.close();
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(ResourceLoader.class.getName()).log(Level.SEVERE,
+                    null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(ResourceLoader.class.getName()).log(Level.SEVERE,
+                    null, ex);
+        }
+        return result;
+    }
+
+
+
+
 }

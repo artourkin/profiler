@@ -3,10 +3,15 @@ package com.ifs.megaprofiler.core;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 
 import com.ifs.megaprofiler.elements.Document;
+import com.ifs.megaprofiler.elements.Endpoint;
+import com.ifs.megaprofiler.elements.Record;
 import com.ifs.megaprofiler.helper.MyLogger;
+import com.ifs.megaprofiler.helper.ResourceLoader;
 import com.ifs.megaprofiler.helper.XmlSerializer;
+import com.ifs.megaprofiler.maths.Lattice;
 import com.ifs.megaprofiler.maths.Maths;
 
 public class Controller {
@@ -26,9 +31,13 @@ public class Controller {
 	Document result;
 	FileSystemGatherer fsgatherer;
 	List<Document> chunk;
-
+    private List<String> LatticeProperties;
+    public Lattice<Endpoint> lattice;
+    Recorder recorder;
 	public Controller() {
 		count = 0;
+        lattice=new Lattice<Endpoint>(ResourceLoader.getLatticeProperties());
+        recorder=new Recorder(ResourceLoader.getLatticeProperties()) ;
 	}
 
 	public void Execute(String path, String profilepath) {
@@ -102,7 +111,14 @@ public class Controller {
 			return;
 		}
 		try {
-			result = Maths.reduce(result, Maths.reduce(chunk));
+            ListIterator<Document> documentListIterator = chunk.listIterator();
+            while (documentListIterator.hasNext()){
+                Record record = recorder.readDocument(documentListIterator.next());
+                List<Endpoint> endpoints=new ArrayList<Endpoint>();
+                endpoints.add(record.getEndpoint(lattice.getDimensionNames())) ;
+                lattice.addEndpointsForSector(record.getCoordinates(lattice.getDimensionNames()),endpoints);
+            }
+			//result = Maths.reduce(result, Maths.reduce(chunk));
 		} catch (Exception e) {
 			MyLogger.print(Aggregator.class.getName() + ", exception:"
 					+ e.getMessage());

@@ -38,4 +38,8 @@ public class Document {
 	public Node getRoot() {
 		return this.root;
 	}
+
+    public String getValue(String name) {
+        return root.findValueByName(name);
+    }
 }
