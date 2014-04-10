@@ -8,7 +8,7 @@ import junit.framework.TestCase;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ListIterator;
+import java.util.Set;
 
 /**
  * Created by artur on 4/10/14.
@@ -43,15 +43,15 @@ public class LatticeTest extends TestCase {
         propertyList1.add(new Property("Mimetype","application/pdf", sourceList3));
         propertyList1.add(new Property("puid","fmt/1", sourceList1));
         propertyList1.add(new Property("OS","win", sourceList1));
-        recordList.add(new Record(propertyList1));
+        recordList.add(new Record("File1",propertyList1));
 
         List<Property> propertyList2=new ArrayList<Property>();
         propertyList2.add(new Property("Format","PDF", sourceList1));
         propertyList2.add(new Property("Format_version","1.5", sourceList3));
         propertyList2.add(new Property("Mimetype","application/pdf", sourceList2));
         propertyList2.add(new Property("puid","fmt/4", sourceList3));
-        propertyList2.add(new Property("OS","MacOS", sourceList2));
-        recordList.add(new Record(propertyList2));
+       // propertyList2.add(new Property("OS","MacOS", sourceList2));
+        recordList.add(new Record("File2",propertyList2));
 
         List<Property> propertyList3=new ArrayList<Property>();
         propertyList3.add(new Property("Format","PNG", sourceList3));
@@ -59,12 +59,12 @@ public class LatticeTest extends TestCase {
         propertyList3.add(new Property("Mimetype","image/png", sourceList2));
         propertyList3.add(new Property("puid","fmt/99", sourceList3));
         propertyList3.add(new Property("OS","win", sourceList2));
-        recordList.add(new Record(propertyList3));
+        recordList.add(new Record("File3",propertyList3));
 
         List<String> dimension_names= new ArrayList<String>();
 
         for (Record r: recordList){
-            List<String> properties = r.getProperties2String();
+            List<String> properties = r.getPropertiesToString();
             for (String p: properties){
                 if (!dimension_names.contains(p)) {
                     dimension_names.add(p);
@@ -76,7 +76,9 @@ public class LatticeTest extends TestCase {
 
     public void testAddEndpointsForSector() throws Exception {
         for (Record r: recordList){
-            lattice.addEndpointsForSector(r.getProperties2String(),r.getEndpoints());
+            List<Endpoint> endpoints=new ArrayList<Endpoint>();
+            endpoints.add(r.getEndpoint(lattice.dimensionNames)) ;
+            lattice.addEndpointsForSector(r.getCoordinates(lattice.dimensionNames),endpoints);
         }
         System.out.print(lattice.toString());
     }
@@ -90,6 +92,9 @@ public class LatticeTest extends TestCase {
     }
 
     public void testGetAllCoordinates() throws Exception {
+        testAddEndpointsForSector();
+        Set<List<String>> allCoordinates = lattice.getAllCoordinates();
+
 
     }
 }

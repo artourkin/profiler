@@ -16,15 +16,21 @@ package com.ifs.megaprofiler.maths;
  */
 
 
-        import java.util.ArrayList;
-        import java.util.Collection;
-        import java.util.HashMap;
-        import java.util.HashSet;
-        import java.util.List;
-        import java.util.Map;
-        import java.util.Map.Entry;
-        import java.util.Set;
-        import java.util.TreeMap;
+import com.ifs.megaprofiler.elements.Record;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeMap;
+
+
+// extended by: Artur
+
 
 /**
  * A lattice for describing the end points associated with a service and how
@@ -125,7 +131,7 @@ public class Lattice<T> {
      * coordinates can be used as ordered keys in a map.
      */
     @SuppressWarnings("serial")
-    private class Coordinate extends ArrayList<String> implements Comparable<Coordinate> {
+    protected class Coordinate extends ArrayList<String> implements Comparable<Coordinate> {
 
         public Coordinate(Collection<String> sectorCoordinates) {
             super(sectorCoordinates);
@@ -149,7 +155,7 @@ public class Lattice<T> {
     }
 
     /* We store a copy of the dimension names */
-    private final List<String> dimensionNames;
+    protected final List<String> dimensionNames;
 
     /*
      * Each dimension also has a valid set of values, e.g. the
@@ -157,7 +163,7 @@ public class Lattice<T> {
      * "us-east-1b", "us-east-1c". These values represent positions along the
      * dimension and form part of the sector coordinates for an end-point.
      */
-    private final Map<String, Set<String>> valuesByDimension;
+    protected final Map<String, Set<String>> valuesByDimension;
 
     /*
      * We keep a map of the end-points by sector coordinates. For example if our
@@ -167,7 +173,7 @@ public class Lattice<T> {
      * [ "us-east-1a", "v2.1" ] -> [
      * set-of-end-points-in-us-east-1a-running-v2.1 ]
      */
-    private final Map<Coordinate, Collection<T>> endpointsByCoordinate = new TreeMap<Coordinate, Collection<T>>();
+    protected final Map<Coordinate, Collection<T>> endpointsByCoordinate = new TreeMap<Coordinate, Collection<T>>();
 
     /**
      * Create an n-dimensional Lattice where each dimension represents a
@@ -214,6 +220,9 @@ public class Lattice<T> {
             this.valuesByDimension.get(dimensionNames.get(i)).add(sectorCoordinates.get(i));
         }
     }
+
+
+
 
     /**
      * Get the endpoints in a particular sector
@@ -346,6 +355,7 @@ public class Lattice<T> {
     /**
      * @return the lattice in string form
      */
+    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
 

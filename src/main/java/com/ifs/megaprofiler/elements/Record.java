@@ -8,11 +8,13 @@ import java.util.List;
  */
 public class Record {
     private List<Property> properties;
+    private String uid;
 
     public Record(){
         this.properties=new ArrayList<Property>();
     }
-    public Record(List<Property> properties) {
+    public Record(String uid, List<Property> properties) {
+        this.uid = uid;
         this.properties = properties;
     }
 
@@ -24,7 +26,7 @@ public class Record {
         this.properties = properties;
     }
 
-    public List<String> getProperties2String() {
+    public List<String> getPropertiesToString() {
         List<String> result = new ArrayList<String>();
         for (Property p: this.properties) {
             if (!result.contains(p.key)) {
@@ -34,12 +36,54 @@ public class Record {
         return result;
     }
 
-    public List<Endpoint> getEndpoints(){
-        List<Endpoint> result=new ArrayList<Endpoint>();
-        for (Property p: this.properties) {
-            result.add(new Endpoint(p.getSourceIDs()));
+
+    /* Extends propertyList with empty string to comply with dimensions */
+    public List<String> complyToDimensions(List<String> dimensions){
+        List<String> result = new ArrayList<String>();
+        List<String> propertiesToString = getPropertiesToString();
+
+        for (String s: dimensions) {
+            if(propertiesToString.contains(s)) {
+                result.add(s);
+            } else {
+                result.add("");
+            }
         }
         return result;
+    }
+
+    public List<List<String>> getSources(List<String> dimensions){
+        List<List<String>> result= new ArrayList<List<String>>();
+        for (String dimension: dimensions){
+            List<String> sourceIDsbyProperty=null;   //TODO:check if null is the best value here. Maybe empty list is better
+            for (Property p : properties){
+                if (p.key.equals(dimension)) {
+                    sourceIDsbyProperty = p.getSourceIDs();
+                    break;
+                }
+            }
+            result.add(sourceIDsbyProperty);
+        }
+        return result;
+    }
+
+    public List<String> getCoordinates(List<String> dimensions){
+        List<String> result = new ArrayList<String>();
+        for (String dimension: dimensions){
+            String coordinate="";
+            for (Property p : properties){
+                if (p.key.equals(dimension)) {
+                    coordinate=p.value;
+                    break;
+                }
+            }
+            result.add(coordinate);
+        }
+        return result;
+    }
+
+    public Endpoint getEndpoint(List<String> dimensions){
+        return new Endpoint(uid, getSources(dimensions));
     }
 
 
