@@ -94,8 +94,8 @@ public class Node {
             return getValue();
         if (this.properties.size() > 0 ) {
             for( Property p: this.properties){
-                if (p.key.equals(name)) {
-                    return p.value;
+                if (p.getKey().equals(name)) {
+                    return p.getValue();
                 }
             }
         }
@@ -229,7 +229,7 @@ public class Node {
 
     public Property getProperty(String name) {
         for (Property prop : this.properties) {
-            if (prop.key.equals(name)) {
+            if (prop.getKey().equals(name)) {
                 return prop;
             }
         }

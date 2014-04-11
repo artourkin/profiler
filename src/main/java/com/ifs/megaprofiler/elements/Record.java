@@ -37,16 +37,15 @@ public class Record {
     public List<String> getPropertiesToString() {
         List<String> result = new ArrayList<String>();
         for (Property p: this.properties) {
-            if (!result.contains(p.key)) {
-                result.add(p.key);
+            if (!result.contains(p.getKey())) {
+                result.add(p.getKey());
             }
         }
         return result;
     }
 
-
     /* Extends propertyList with empty string to comply with dimensions */
-    public List<String> complyToDimensions(List<String> dimensions){
+    public List<String> complyToLatticeDimensions(List<String> dimensions){
         List<String> result = new ArrayList<String>();
         List<String> propertiesToString = getPropertiesToString();
 
@@ -60,12 +59,12 @@ public class Record {
         return result;
     }
 
-    public List<List<String>> getSources(List<String> dimensions){
+    public List<List<String>> getSourceIDs(List<String> propertyNames){
         List<List<String>> result= new ArrayList<List<String>>();
-        for (String dimension: dimensions){
-            List<String> sourceIDsbyProperty=null;   //TODO:check if null is the best value here. Maybe empty list is better
+        for (String propertyName: propertyNames){
+            List<String> sourceIDsbyProperty=new ArrayList<String>();   //TODO:check if null is the best value here. Maybe empty list is better
             for (Property p : properties){
-                if (p.key.equals(dimension)) {
+                if (p.getKey().equals(propertyName)) {
                     sourceIDsbyProperty = p.getSourceIDs();
                     break;
                 }
@@ -75,23 +74,35 @@ public class Record {
         return result;
     }
 
-    public List<String> getCoordinates(List<String> dimensions){
-        List<String> result = new ArrayList<String>();
-        for (String dimension: dimensions){
-            String coordinate="";
+    public List<List<Source>> getSources(List<String> propertyNames){
+        List<List<Source>> result= new ArrayList<List<Source>>();
+        for (String propertyName: propertyNames){
+            List<Source> sourcesByPropertyName=new ArrayList<Source>();   //TODO:check if null is the best value here. Maybe empty list is better
             for (Property p : properties){
-                if (p.key.equals(dimension)) {
-                    coordinate=p.value;
+                if (p.getKey().equals(propertyName)) {
+                    sourcesByPropertyName = p.getSources();
                     break;
                 }
             }
-            result.add(coordinate);
+            result.add(sourcesByPropertyName);
         }
         return result;
     }
 
-    public Endpoint getEndpoint(List<String> dimensions){
-        return new Endpoint(uid, getSources(dimensions));
+
+    public List<String> getPropertyValues(List<String> propertyNames){
+        List<String> result = new ArrayList<String>();
+        for (String propertyName: propertyNames){
+            String propertyValue="";
+            for (Property p : properties){
+                if (p.getKey().equals(propertyName)) {
+                    propertyValue=p.getValue();
+                    break;
+                }
+            }
+            result.add(propertyValue);
+        }
+        return result;
     }
 
 

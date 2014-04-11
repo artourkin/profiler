@@ -16,8 +16,6 @@ package com.ifs.megaprofiler.maths;
  */
 
 
-import com.ifs.megaprofiler.elements.Record;
-
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -128,24 +126,19 @@ public class Lattice<T> {
 
         public Coordinate(List<String> sectorCoordinates) {
             super(sectorCoordinates);
-
-
-
         }
+
         public Coordinate(List<String> sectorCoordinates,Map<String, Set<String>> valuesByDimension) {
-            sectorCoordinates= ToInt(sectorCoordinates,valuesByDimension);
+            sectorCoordinates= ToNumericCoordinates(sectorCoordinates, valuesByDimension);
             this.addAll(sectorCoordinates);
         }
 
-        public ArrayList<String> ToInt(List<String> coordinates,Map<String, Set<String>> valuesByDimension){
+        public ArrayList<String> ToNumericCoordinates(List<String> coordinates, Map<String, Set<String>> valuesByDimension){
             ArrayList<String> result=new ArrayList<String>();
             for (int i=0; i<coordinates.size();i++)
             {
                 List<String> strings =  new ArrayList<String>();
-                 strings.addAll(valuesByDimension.get(dimensionNames.get(i))) ;
-                //for(int j=0; j< strings.size(); j++) {
-              //      if (strings.)
-              //  }
+                strings.addAll(valuesByDimension.get(dimensionNames.get(i)));
                 int indexOf = strings.indexOf(coordinates.get(i));
                 result.add(Integer.toString(indexOf));
             }

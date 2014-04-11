@@ -15,18 +15,10 @@ import java.util.List;
  */
 public class Property {
 
-    public String key;
-    public String value;
+    private String key;
+    private String value;
 
     private List<Source> sources;
-
-    public List<Source> getSources() {
-        return sources;
-    }
-
-    public void setSources(List<Source> sources) {
-        this.sources = sources;
-    }
 
     public enum Type {
         Float, String, Integer
@@ -35,18 +27,6 @@ public class Property {
     public Type type;
 
     public Property() {
-    }
-
-    public void setKey(String key) {
-        this.key = key;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
-
-    public void setType(Type type) {
-        this.type = type;
     }
 
     public Property(String key, String value, Type type) {
@@ -67,6 +47,35 @@ public class Property {
         this.type = Type.String;
         this.sources = sources;
     }
+
+    public String getKey() {
+        return key;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public List<Source> getSources() {
+        return sources;
+    }
+
+    public void setSources(List<Source> sources) {
+        this.sources = sources;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+
+    public void setType(Type type) {
+        this.type = type;
+    }
+
 
     public List<String> getSourceIDs(){
         List<String> result=new ArrayList<String>();
