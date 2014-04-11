@@ -123,14 +123,14 @@ public class TranslatorC3PO {
 			if (isIdentificationConflicted(node, root)) {
 				conflictCount += node.count;
 			} else {
-				String key = node.getProperty(identityName).value;
+				String key = node.getProperty(identityName).getValue();
 				if (dictionary.containsKey(key)) {
 					Entry<String, Long> entry = dictionary.floorEntry(key);
 					dictionary.remove(key);
 					dictionary.put(entry.getKey(), entry.getValue()
 							+ node.count);
 				} else {
-					dictionary.put(node.getProperty(identityName).value,
+					dictionary.put(node.getProperty(identityName).getValue(),
 							node.count);
 				}
 				itemCount += node.count;
@@ -228,11 +228,11 @@ public class TranslatorC3PO {
 
 		property.add(new DefaultAttribute("count", String.valueOf(node.count)));
 		property.add(new DefaultAttribute("sum", node.value));
-		property.add(new DefaultAttribute("min", node.getProperty("min").value));
-		property.add(new DefaultAttribute("max", node.getProperty("max").value));
-		property.add(new DefaultAttribute("avg", node.getProperty("avg").value));
-		property.add(new DefaultAttribute("var", node.getProperty("var").value));
-		property.add(new DefaultAttribute("sd", node.getProperty("sd").value));
+		property.add(new DefaultAttribute("min", node.getProperty("min").getValue()));
+		property.add(new DefaultAttribute("max", node.getProperty("max").getValue()));
+		property.add(new DefaultAttribute("avg", node.getProperty("avg").getValue()));
+		property.add(new DefaultAttribute("var", node.getProperty("var").getValue()));
+		property.add(new DefaultAttribute("sd", node.getProperty("sd").getValue()));
 		return property;
 	}
 
@@ -266,7 +266,7 @@ public class TranslatorC3PO {
 			node = root.getParent(node);
 		}
 		if (node != null && node.getProperty("status") != null
-				&& node.getProperty("status").value.equals("CONFLICT")) {
+				&& node.getProperty("status").getValue().equals("CONFLICT")) {
 			return true;
 		}
 		return false;
@@ -280,7 +280,7 @@ public class TranslatorC3PO {
 		// conflicted
 		// version
 		if (node != null && node.getProperty("status") != null
-				&& node.getProperty("status").value.equals("CONFLICT")) {
+				&& node.getProperty("status").getValue().equals("CONFLICT")) {
 			return true;
 		}
 		return false;

@@ -77,8 +77,8 @@ public class LatticeTest extends TestCase {
     public void testAddEndpointsForSector() throws Exception {
         for (Record r: recordList){
             List<Endpoint> endpoints=new ArrayList<Endpoint>();
-            endpoints.add(r.getEndpoint(lattice.dimensionNames)) ;
-            lattice.addEndpointsForSector(r.getCoordinates(lattice.dimensionNames),endpoints);
+         //   endpoints.add(r.getEndpoint(lattice.dimensionNames)) ;
+         //   lattice.addEndpointsForSector(r.getCoordinates(lattice.dimensionNames),endpoints);
         }
         System.out.print(lattice.toString());
     }

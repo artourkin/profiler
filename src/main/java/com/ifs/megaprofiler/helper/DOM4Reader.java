@@ -4,21 +4,19 @@ package com.ifs.megaprofiler.helper;
  * Created by artur on 4/11/14.
  */
 
-        import com.ifs.megaprofiler.elements.Record;
-        import org.dom4j.Attribute;
-        import org.dom4j.Document;
-        import org.dom4j.DocumentException;
-        import org.dom4j.Element;
-        import org.dom4j.io.OutputFormat;
-        import org.dom4j.io.SAXReader;
-        import org.dom4j.io.XMLWriter;
-        import org.dom4j.tree.DefaultAttribute;
-        import org.dom4j.tree.DefaultDocument;
-        import org.dom4j.tree.DefaultElement;
+import com.ifs.megaprofiler.elements.Property;
+import com.ifs.megaprofiler.elements.Record;
+import com.ifs.megaprofiler.elements.Source;
+import org.dom4j.Attribute;
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.Element;
+import org.dom4j.io.SAXReader;
 
-        import java.io.InputStream;
-        import java.io.StringReader;
-        import java.util.*;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Created by artur on 4/1/14.
@@ -29,6 +27,7 @@ public class DOM4Reader {
     }
     public  List<Record> read(InputStream is){
         List<Record> result=null;
+        List<Property> propertyList=new ArrayList<Property>();
         Document document=null;
         try {
             document = reader.read(is);
@@ -39,21 +38,26 @@ public class DOM4Reader {
         {
             return null;
         }
-        result.addAll(identify(document.getRootElement()));
-        result.addAll(extractFeatures(document.getRootElement())) ;
+
+        identify(document.getRootElement());
+        extractFeatures(document.getRootElement()) ;
         return result;
     }
 
     public  List<Record> read(Document document){
-        List<Record> result= new ArrayList<Record>();
-        result.addAll(identify(document.getRootElement()));
-        result.addAll(extractFeatures(document.getRootElement())) ;
+        List<Record> result = identify(document.getRootElement());
+        List<Property> properties = extractFeatures(document.getRootElement());
+        if (result != null){
+            for (Record r: result){
+                r.getProperties().addAll(properties);
+            }
+        }
         return result;
     }
 
 
-    private List<Record> extractFeatures(Element rootElement) {
-        List<Record> result= new ArrayList<Record>();
+    private List<Property> extractFeatures(Element rootElement) {
+        List<Property> result= new ArrayList<Property>();
 
         result.addAll(extractFeaturesFrom(rootElement.element("filestatus")));
         result.addAll(extractFeaturesFrom(rootElement.element("fileinfo")));
@@ -66,10 +70,10 @@ public class DOM4Reader {
         return result;
     }
 
-    private List<Record> extractFeaturesFrom(Element element){
+    private List<Property> extractFeaturesFrom(Element element){
         if (element==null)
             return null;
-        List<Record> result=new ArrayList<Record>();
+        List<Property> result=new ArrayList<Property>();
         Iterator iterator = element.elementIterator();
         while (iterator.hasNext()){
             result.add(extractFeatureCommon((Element) iterator.next()));
@@ -77,64 +81,85 @@ public class DOM4Reader {
         return result;
     }
 
-    private Record extractFeatureCommon(Element element) {
-        return new Record(adaptor.getProperty(element.getName()),
-                element.getStringValue(), getStatus(element), getSources(element)) ;
+    private Property extractFeatureCommon(Element element) {
+        Property result=new Property();
+        result.setKey(element.getName());
+        result.setValue(element.getStringValue());
+        result.setSources(getSources(element));
+        return result;
     }
 
-    public List<Record> identify(Element rootElement) {
+    private List<Record> identify(Element rootElement) {
         List<Record> result= new ArrayList<Record>();
+
+        String uid = rootElement.element("fileinfo").element("filepath").getStringValue();
         Element identification = rootElement.element("identification");
         String status = getStatus(identification);
         Iterator identityIterator = identification.elementIterator("identity");
 
         while (identityIterator.hasNext()){
-            Element identity = (Element) identityIterator.next();
+            List<Record> records=new ArrayList<Record>();
 
-            List<Record> versions = getVersions(identity);
-            List<Record> formatMimetypes = getFormatMimetypes(identity, status);
-            Record puid = getPuid(identity);
-            for ( Record v: versions){
-                List<Record> identityRecord=new ArrayList<Record>();
-                identityRecord.addAll(formatMimetypes);
-                identityRecord.add(v);
-                identityRecord.add(puid);
-                result.add(new Record(adaptor.getProperty("identity"),identityRecord,status));
+            Element identity = (Element) identityIterator.next();
+            List<Property> versions = getVersions(identity);
+            List<Property> mimetypes = getMimetypes(identity);
+            List<Property> formats = getFormats(identity);
+            List<Property> puids = getPuid(identity);
+
+            for ( Property v: versions){
+                List<Property> toBeAdded=new ArrayList<Property>();
+                toBeAdded.addAll(mimetypes);
+                toBeAdded.addAll(formats);
+                toBeAdded.addAll(puids);
+                toBeAdded.add(v);
+
+                Record r = new Record(uid,toBeAdded);
+                records.add(r);
             }
+            result.addAll(records);
         }
         return result;
     }
 
-    private List<Record> getFormatMimetypes(Element identity, String status) {
-        List<Record> result=new ArrayList<Record>();
-        result.add(new Record(adaptor.getProperty("format"),
-                identity.attribute("format").getValue(), status, getSources(identity)));
-        result.add(new Record(adaptor.getProperty("mimetype"),
-                identity.attribute("mimetype").getValue(), status, getSources(identity)));
+    private List<Property> getFormats(Element identity) {
+        List<Property> result=new ArrayList<Property>();
+        List<Source> sources=getSources(identity);
+
+        Property tmp=new Property();
+        tmp.setKey("format");
+        tmp.setValue(identity.attribute("format").getValue());
+        tmp.setSources(getSources(identity));
+
+        result.add(tmp);
         return result;
     }
 
-    private Record getPuid(Element identity) {
+    private List<Property> getMimetypes(Element identity) {
+        List<Property> result=new ArrayList<Property>();
+        List<Source> sources=getSources(identity);
+
+        Property tmp=new Property();
+        tmp.setKey("mimetype");
+        tmp.setValue(identity.attribute("mimetype").getValue());
+        tmp.setSources(getSources(identity));
+
+        result.add(tmp);
+        return result;
+    }
+
+    private List<Property> getPuid(Element identity) {
+        List<Property> result=new ArrayList<Property>();
         Element externalIdentifier = identity.element("externalIdentifier");
-        String status = getStatus(externalIdentifier);
-        return new Record(adaptor.getProperty("puid"),
-                externalIdentifier.getStringValue(), status, getSources(externalIdentifier));
-
-    }
-    private Record getFeature(Element element, String feature) {
-        return new Record(adaptor.getProperty(feature),
-                element.getStringValue(), getStatus(element), getSources(element));
-
+        result.add(new Property("puid",externalIdentifier.getStringValue(),getSources(externalIdentifier)));
+        return result;
     }
 
-    private List<Record> getVersions(Element identity) {
-        List<Record> result=new ArrayList<Record>();
+    private List<Property> getVersions(Element identity) {
+        List<Property> result=new ArrayList<Property>();
         Iterator versionIterator = identity.elementIterator("version");
         while (versionIterator.hasNext()){
             Element version = (Element) versionIterator.next();
-            String status = getStatus(version);
-            result.add(new Record(adaptor.getProperty("format_version"),
-                    version.getStringValue(), status, getSources(version)));
+            result.add(new Property("format_versin",version.getStringValue(),getSources(version)));
         }
         return result;
     }
@@ -149,20 +174,20 @@ public class DOM4Reader {
         }
         return (value == null) ? "OK" : value;
     }
-    private List<String> getSources(Element element){
-        List<String> result=new ArrayList<String>();
+    private List<Source> getSources(Element element){
+        List<Source> result=new ArrayList<Source>();
         if (element.getName().equals("identity")){
             Iterator sourceIterator = element.elementIterator("tool");
             while (sourceIterator.hasNext()){
                 Element source = (Element) sourceIterator.next();
                 String toolname= source.attribute("toolname").getValue();
                 String toolversion= source.attribute("toolversion").getValue();
-                result.add( adaptor.getSource( toolname, toolversion ).getId())   ;
+                result.add(new Source(toolname, toolversion));
             }
         } else {
             String toolname= element.attribute("toolname").getValue();
             String toolversion= element.attribute("toolversion").getValue();
-            result.add(adaptor.getSource( toolname, toolversion ).getId());
+            result.add(new Source( toolname, toolversion ));
         }
         return result;
     }

@@ -116,8 +116,8 @@ public class Controller {
             while (documentListIterator.hasNext()){
                 Record record = recorder.readDocument(documentListIterator.next());
                 List<Endpoint> endpoints=new ArrayList<Endpoint>();
-                endpoints.add(record.getEndpoint(lattice.getDimensionNames())) ;
-                lattice.addEndpointsForSector(record.getCoordinates(lattice.getDimensionNames()),endpoints);
+              //  endpoints.add(record.getEndpoint(lattice.getDimensionNames())) ;
+              //  lattice.addEndpointsForSector(record.getCoordinates(lattice.getDimensionNames()),endpoints);
             }
             //result = Maths.reduce(result, Maths.reduce(chunk));
         } catch (Exception e) {

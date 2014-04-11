@@ -96,8 +96,8 @@ public class Aggregator {
 		List<Property> properties = mapAttributes(element, strict);
 		if (properties != null) {
 			for (Property property : properties) {
-				if (property.key.equals("count")) {
-					result.count = Long.parseLong(property.value);
+				if (property.getKey().equals("count")) {
+					result.count = Long.parseLong(property.getValue());
 					properties.remove(property);
 					break;
 				}

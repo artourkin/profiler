@@ -73,7 +73,7 @@ public class XmlSerializer {
 			return;
 		}
 		for (Property property : node.properties) {
-			element.addAttribute(property.key, property.value);
+			element.addAttribute(property.getKey(), property.getValue());
 		}
 	}
 

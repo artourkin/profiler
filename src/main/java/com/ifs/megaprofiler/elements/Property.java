@@ -27,6 +27,7 @@ public class Property {
     public Type type;
 
     public Property() {
+        this.type=Type.String;
     }
 
     public Property(String key, String value, Type type) {
