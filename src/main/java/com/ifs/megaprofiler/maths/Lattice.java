@@ -18,15 +18,8 @@ package com.ifs.megaprofiler.maths;
 
 import com.ifs.megaprofiler.elements.Record;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeMap;
 
 
 // extended by: Artur
@@ -133,8 +126,30 @@ public class Lattice<T> {
     @SuppressWarnings("serial")
     protected class Coordinate extends ArrayList<String> implements Comparable<Coordinate> {
 
-        public Coordinate(Collection<String> sectorCoordinates) {
+        public Coordinate(List<String> sectorCoordinates) {
             super(sectorCoordinates);
+
+
+
+        }
+        public Coordinate(List<String> sectorCoordinates,Map<String, Set<String>> valuesByDimension) {
+            sectorCoordinates= ToInt(sectorCoordinates,valuesByDimension);
+            this.addAll(sectorCoordinates);
+        }
+
+        public ArrayList<String> ToInt(List<String> coordinates,Map<String, Set<String>> valuesByDimension){
+            ArrayList<String> result=new ArrayList<String>();
+            for (int i=0; i<coordinates.size();i++)
+            {
+                List<String> strings =  new ArrayList<String>();
+                 strings.addAll(valuesByDimension.get(dimensionNames.get(i))) ;
+                //for(int j=0; j< strings.size(); j++) {
+              //      if (strings.)
+              //  }
+                int indexOf = strings.indexOf(coordinates.get(i));
+                result.add(Integer.toString(indexOf));
+            }
+            return result;
         }
 
         @Override
@@ -208,17 +223,20 @@ public class Lattice<T> {
             throw new IllegalArgumentException("Mismatch between dimensions of lattice and sector");
         }
 
-        ArrayList<T> toBeAdded = new ArrayList<T>(endpoints);
-        Collection<T> existing = endpointsByCoordinate.get(new Coordinate(sectorCoordinates));
-        if (existing != null) {
-            toBeAdded.addAll(existing);
-        }
-        endpointsByCoordinate.put(new Coordinate(sectorCoordinates), toBeAdded);
-
-        /* Add the coordinate values to our list of values by dimension */
+         /* Add the coordinate values to our list of values by dimension */
         for (int i = 0; i < dimensionNames.size(); i++) {
             this.valuesByDimension.get(dimensionNames.get(i)).add(sectorCoordinates.get(i));
         }
+
+        ArrayList<T> toBeAdded = new ArrayList<T>(endpoints);
+        Collection<T> existing = endpointsByCoordinate.get(new Coordinate(sectorCoordinates, valuesByDimension));
+        if (existing != null) {
+            toBeAdded.addAll(existing);
+        }
+
+        endpointsByCoordinate.put(new Coordinate(sectorCoordinates, valuesByDimension), toBeAdded);
+
+
     }
 
 
