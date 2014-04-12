@@ -4,9 +4,11 @@ package com.ifs.megaprofiler.helper;
  * Created by artur on 4/11/14.
  */
 
+import com.google.caliper.memory.ObjectGraphMeasurer;
 import com.ifs.megaprofiler.elements.Property;
 import com.ifs.megaprofiler.elements.Record;
 import com.ifs.megaprofiler.elements.Source;
+import com.ifs.megaprofiler.maths.Maths;
 import org.dom4j.Attribute;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -26,22 +28,13 @@ public class DOM4Reader {
     public DOM4Reader()    {
     }
     public  List<Record> read(InputStream is){
-        List<Record> result=null;
-        List<Property> propertyList=new ArrayList<Property>();
         Document document=null;
         try {
             document = reader.read(is);
         } catch (DocumentException e) {
             e.printStackTrace();
         }
-        if (document==null)
-        {
-            return null;
-        }
-
-        identify(document.getRootElement());
-        extractFeatures(document.getRootElement()) ;
-        return result;
+        return read(document);
     }
 
     public  List<Record> read(Document document){
@@ -50,6 +43,33 @@ public class DOM4Reader {
         if (result != null){
             for (Record r: result){
                 r.getProperties().addAll(properties);
+            }
+        }
+        return result;
+    }
+
+    public  List<Record> readC(InputStream is){
+        Document document=null;
+        try {
+            document = reader.read(is);
+        } catch (DocumentException e) {
+            e.printStackTrace();
+        }
+        return readC(document);
+    }
+
+
+    public  List<Record> readC(Document document){
+        List<Record> result=new ArrayList<Record>();
+        String uid = document.getRootElement().element("fileinfo").element("filepath").getStringValue();
+        List<List<Property>> identifyC = identifyC(document.getRootElement());
+        List<List<Property>> extractFeaturesC = extractFeaturesC(document.getRootElement());
+
+        for (List<Property> identity : identifyC) {
+            for (List<Property> features : extractFeaturesC ) {
+                Record r=new Record(uid,identity);
+                r.getProperties().addAll(features);
+                result.add(r);
             }
         }
         return result;
@@ -70,6 +90,20 @@ public class DOM4Reader {
         return result;
     }
 
+    private List<List<Property>> extractFeaturesC(Element rootElement) {
+        List<List<Property>> result= new ArrayList<List<Property>>();
+
+        result.addAll(extractFeaturesFromC(rootElement.element("filestatus")));
+        result.addAll(extractFeaturesFromC(rootElement.element("fileinfo")));
+
+        Element metadata = rootElement.element("metadata");
+        Iterator iterator = metadata.elementIterator();
+        while (iterator.hasNext()){
+            result.addAll(extractFeaturesFromC((Element) iterator.next()));
+        }
+        return result;
+    }
+
     private List<Property> extractFeaturesFrom(Element element){
         if (element==null)
             return null;
@@ -78,6 +112,33 @@ public class DOM4Reader {
         while (iterator.hasNext()){
             result.add(extractFeatureCommon((Element) iterator.next()));
         }
+        return result;
+    }
+
+    private List<List<Property>> extractFeaturesFromC(Element element){
+        if (element==null)
+            return null;
+        List<List<Property>> result= new ArrayList<List<Property>>();
+        Iterator iterator = element.elementIterator();
+        List<String> propertyNames=new ArrayList<String>();
+        while (iterator.hasNext()) {
+            Element e = (Element) iterator.next();
+            String name = e.getName();
+            if (!propertyNames.contains(name)) {
+                propertyNames.add(name);
+            }
+        }
+
+        for (String propertyName : propertyNames) {
+            List<Property> properties=new ArrayList<Property>();
+            List elements = element.elements(propertyName);
+            for (Object o : elements) {
+                Element e = (Element)o;
+                properties.add(extractFeatureCommon(e));
+            }
+            result.add(properties);
+        }
+
         return result;
     }
 
@@ -105,18 +166,58 @@ public class DOM4Reader {
             List<Property> mimetypes = getMimetypes(identity);
             List<Property> formats = getFormats(identity);
             List<Property> puids = getPuid(identity);
+            if (versions.size()>0) {
+                for ( Property v: versions){
+                    List<Property> toBeAdded=new ArrayList<Property>();
+                    toBeAdded.addAll(mimetypes);
+                    toBeAdded.addAll(formats);
+                    toBeAdded.addAll(puids);
+                    toBeAdded.add(v);
 
-            for ( Property v: versions){
+                    Record r = new Record(uid,toBeAdded);
+                    records.add(r);
+                }
+
+            } else {
                 List<Property> toBeAdded=new ArrayList<Property>();
                 toBeAdded.addAll(mimetypes);
                 toBeAdded.addAll(formats);
                 toBeAdded.addAll(puids);
-                toBeAdded.add(v);
-
                 Record r = new Record(uid,toBeAdded);
                 records.add(r);
             }
             result.addAll(records);
+        }
+        return result;
+    }
+
+    private List<List<Property>> identifyC(Element rootElement) {
+        List<List<Property>> result= new ArrayList<List<Property>>();
+
+
+        Element identification = rootElement.element("identification");
+        String status = getStatus(identification);
+        Iterator identityIterator = identification.elementIterator("identity");
+
+        while (identityIterator.hasNext()){
+            Element identity = (Element) identityIterator.next();
+            List<List<Property>> tmp=  new ArrayList<List<Property>>();
+
+            List<Property> versions = getVersions(identity);
+            List<Property> puids = getPuid(identity);
+            tmp.add(versions);
+            tmp.add(puids);
+            tmp=Maths.cartesianProduct(tmp);
+
+            List<Property> mimetypes = getMimetypes(identity);
+            List<Property> formats = getFormats(identity);
+
+            for (List<Property> list : tmp) {
+                list.addAll(mimetypes);
+                list.addAll(formats);
+            }
+
+            result.addAll(tmp);
         }
         return result;
     }
@@ -149,8 +250,11 @@ public class DOM4Reader {
 
     private List<Property> getPuid(Element identity) {
         List<Property> result=new ArrayList<Property>();
-        Element externalIdentifier = identity.element("externalIdentifier");
-        result.add(new Property("puid",externalIdentifier.getStringValue(),getSources(externalIdentifier)));
+        List externalIdentifiers = identity.elements("externalIdentifier");
+        for (Object externalIdentifier: externalIdentifiers) {
+            Element e = (Element) externalIdentifier;
+            result.add(new Property("puid",e.getStringValue(),getSources(e)));
+        }
         return result;
     }
 
@@ -159,7 +263,7 @@ public class DOM4Reader {
         Iterator versionIterator = identity.elementIterator("version");
         while (versionIterator.hasNext()){
             Element version = (Element) versionIterator.next();
-            result.add(new Property("format_versin",version.getStringValue(),getSources(version)));
+            result.add(new Property("format_version",version.getStringValue(),getSources(version)));
         }
         return result;
     }
@@ -174,6 +278,7 @@ public class DOM4Reader {
         }
         return (value == null) ? "OK" : value;
     }
+
     private List<Source> getSources(Element element){
         List<Source> result=new ArrayList<Source>();
         if (element.getName().equals("identity")){

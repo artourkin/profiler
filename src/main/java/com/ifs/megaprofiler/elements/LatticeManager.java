@@ -17,6 +17,10 @@ public class LatticeManager {
         this.lattice = new Lattice<Endpoint>(propertyNames);
     }
 
+    public Lattice<Endpoint> getLattice() {
+        return lattice;
+    }
+
     public List<String> getPropertyNames()
     {
         if (lattice != null) {

@@ -6,9 +6,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
-import com.ifs.megaprofiler.elements.Document;
 import com.ifs.megaprofiler.elements.Endpoint;
+import com.ifs.megaprofiler.elements.LatticeManager;
 import com.ifs.megaprofiler.elements.Record;
+import com.ifs.megaprofiler.helper.DOM4Reader;
 import com.ifs.megaprofiler.helper.MyLogger;
 import com.ifs.megaprofiler.helper.ResourceLoader;
 import com.ifs.megaprofiler.helper.XmlSerializer;
@@ -28,15 +29,14 @@ public class Controller {
     long timeReduce;
     long timeMap;
     Aggregator aggregator;
-    Document result;
     FileSystemGatherer fsgatherer;
-    List<Document> chunk;
-    public Lattice<Endpoint> lattice;
-    Recorder recorder;
+    List<InputStream> chunk;
+    LatticeManager latticeManager;
+    DOM4Reader dom4Reader;
     public Controller() {
         count = 0;
-        lattice=new Lattice<Endpoint>(ResourceLoader.getLatticeProperties());
-        recorder=new Recorder(ResourceLoader.getLatticeProperties()) ;
+        latticeManager=new LatticeManager(ResourceLoader.getLatticeProperties());
+        dom4Reader=new DOM4Reader();
     }
 
     public void Execute(String path, String profilepath) {
@@ -55,7 +55,7 @@ public class Controller {
         }
         map();
         terminate();
-        serializeResults(profilepath);
+        //serializeResults(profilepath);
         System.out.println("Process finished");
         MyLogger.print("Process finished");
     }
@@ -63,12 +63,11 @@ public class Controller {
     private void initialize(String path) throws IOException {
         MyLogger.print("Initialization...");
         aggregator = new Aggregator();
-        result = null;
-        chunk = new ArrayList<Document>();
+        chunk = new ArrayList<InputStream>();
         start = System.currentTimeMillis();
         stopReduce = System.currentTimeMillis();
         stopMap = System.currentTimeMillis();
-        chunkmaxsize = 1000;
+        chunkmaxsize = 50;
         totalcount = 0;
         timeMapTmp = 0;
         timeReduceTmp = 0;
@@ -83,11 +82,9 @@ public class Controller {
         while (true) {
             try {
                 InputStream stream = fsgatherer.getNext();
-                Document doc = aggregator.parseDocument(stream);
-                stream.close();
-                if (doc != null) {
+                if (stream != null) {
                     totalcount++;
-                    chunk.add(doc);
+                    chunk.add(stream);
                 }
             } catch (Exception e) {
                 MyLogger.print(Aggregator.class.getName() + ", exception:"
@@ -112,12 +109,14 @@ public class Controller {
             return;
         }
         try {
-            ListIterator<Document> documentListIterator = chunk.listIterator();
+            ListIterator<InputStream> documentListIterator = chunk.listIterator();
             while (documentListIterator.hasNext()){
-                Record record = recorder.readDocument(documentListIterator.next());
-                List<Endpoint> endpoints=new ArrayList<Endpoint>();
-              //  endpoints.add(record.getEndpoint(lattice.getDimensionNames())) ;
-              //  lattice.addEndpointsForSector(record.getCoordinates(lattice.getDimensionNames()),endpoints);
+                InputStream inputStream = documentListIterator.next();
+                List<Record> records = dom4Reader.readC(inputStream);
+                inputStream.close();
+                for(Record r : records)  {
+                    latticeManager.addRecord(r);
+                }
             }
             //result = Maths.reduce(result, Maths.reduce(chunk));
         } catch (Exception e) {
@@ -129,9 +128,7 @@ public class Controller {
         timeReduce += timeReduceTmp;
         System.out.print("\r" + totalcount + " files processed in "
                 + (stopReduce - start) / 1000.0 + "s    ");
-        MyLogger.print(totalcount + " files processed in "
-                + (stopReduce - start) / 1000.0 + "s (map/reduce: "
-                + timeMapTmp / 1000.0 + "/" + timeReduceTmp / 1000.0 + "s)");
+
         chunk.clear();
 
     }
@@ -169,10 +166,6 @@ public class Controller {
         this.count = totalcount;
     }
 
-    private void serializeResults(String profilepath) {
-        XmlSerializer.printDocument(result, profilepath + "profile.xml", false);
-        TranslatorC3PO.printDocument(result, profilepath + "profilec3po.xml",
-                false);
-    }
+
 
 }

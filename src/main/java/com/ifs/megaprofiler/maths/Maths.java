@@ -181,4 +181,30 @@ public class Maths {
         }
         return result;
     }
+
+    public static List<List<Property>> cartesianProduct(List<List<Property>> lists) {
+        List<List<Property>> resultLists = new ArrayList<List<Property>>();
+        if (lists.size() == 0) {
+            resultLists.add(new ArrayList<Property>());
+            return resultLists;
+        } else {
+            List<Property> firstList = lists.get(0);
+            List<List<Property>> remainingLists = cartesianProduct(lists.subList(1, lists.size()));
+            if (firstList.size()==0) {
+                return remainingLists;
+            }
+
+            for (Property condition : firstList) {
+                for (List<Property> remainingList : remainingLists) {
+                    ArrayList<Property> resultList = new ArrayList<Property>();
+                    resultList.add(condition);
+                    resultList.addAll(remainingList);
+                    resultLists.add(resultList);
+                }
+            }
+        }
+        return resultLists;
+    }
+
+
 }
