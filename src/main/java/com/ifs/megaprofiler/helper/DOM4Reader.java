@@ -92,15 +92,16 @@ public class DOM4Reader {
 
     private List<List<Property>> extractFeaturesC(Element rootElement) {
         List<List<Property>> result= new ArrayList<List<Property>>();
-
-        result.addAll(extractFeaturesFromC(rootElement.element("filestatus")));
-        result.addAll(extractFeaturesFromC(rootElement.element("fileinfo")));
+        List<List<Property>> tmp = new ArrayList<List<Property>>();
+        tmp.addAll(extractFeaturesFromC(rootElement.element("filestatus")));
+        tmp.addAll(extractFeaturesFromC(rootElement.element("fileinfo")));
 
         Element metadata = rootElement.element("metadata");
         Iterator iterator = metadata.elementIterator();
         while (iterator.hasNext()){
-            result.addAll(extractFeaturesFromC((Element) iterator.next()));
+            tmp.addAll(extractFeaturesFromC((Element) iterator.next()));
         }
+        result= Maths.cartesianProduct(tmp);
         return result;
     }
 
@@ -134,7 +135,10 @@ public class DOM4Reader {
             List elements = element.elements(propertyName);
             for (Object o : elements) {
                 Element e = (Element)o;
-                properties.add(extractFeatureCommon(e));
+                Property featureCommon = extractFeatureCommon(e);
+                if (featureCommon!=null) {
+                    properties.add(extractFeatureCommon(e));
+                }
             }
             result.add(properties);
         }
@@ -143,6 +147,9 @@ public class DOM4Reader {
     }
 
     private Property extractFeatureCommon(Element element) {
+        if (element.getName().equals("message")) {
+            return null;
+        }
         Property result=new Property();
         result.setKey(element.getName());
         result.setValue(element.getStringValue());

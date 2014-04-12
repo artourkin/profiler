@@ -12,7 +12,7 @@ public class Source {
 
     private String version;
 
-    int i=0;
+    private int i=0;
 
     public Source(String name, String version){
         this.id= Integer.toString(i++);
@@ -30,9 +30,9 @@ public class Source {
         return id;
     }
 
-    //public void setId(String id) {
-    //    this.id = id;
-    //}
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getName() {
         return name;

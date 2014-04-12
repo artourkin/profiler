@@ -67,7 +67,7 @@ public class Controller {
         start = System.currentTimeMillis();
         stopReduce = System.currentTimeMillis();
         stopMap = System.currentTimeMillis();
-        chunkmaxsize = 50;
+        chunkmaxsize = 1000;
         totalcount = 0;
         timeMapTmp = 0;
         timeReduceTmp = 0;
@@ -114,9 +114,7 @@ public class Controller {
                 InputStream inputStream = documentListIterator.next();
                 List<Record> records = dom4Reader.readC(inputStream);
                 inputStream.close();
-                for(Record r : records)  {
-                    latticeManager.addRecord(r);
-                }
+                latticeManager.addRecords(records);
             }
             //result = Maths.reduce(result, Maths.reduce(chunk));
         } catch (Exception e) {

@@ -14,8 +14,9 @@ public class Record {
         this.properties=new ArrayList<Property>();
     }
     public Record(String uid, List<Property> properties) {
+        this();
         this.uid = uid;
-        this.properties = properties;
+        addProperties(properties);
     }
 
     public String getUid(){
@@ -34,6 +35,9 @@ public class Record {
         this.properties = properties;
     }
 
+    public void addProperties(List<Property> properties){
+        this.properties.addAll(properties);
+    }
     public List<String> getPropertiesToString() {
         List<String> result = new ArrayList<String>();
         for (Property p: this.properties) {

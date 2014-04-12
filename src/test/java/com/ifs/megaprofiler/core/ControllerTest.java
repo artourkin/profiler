@@ -15,10 +15,10 @@ public class ControllerTest {
 
 	@Test
 	public void testExecute() {
-		controller.Execute("/home/artur/rnd/data/govdocs_subset", "src/test/resources/");
+		controller.Execute("/home/artur/rnd/data/govdocs_subset1", "src/test/resources/");
         System.out.print(controller.latticeManager.getLattice());
-        ObjectGraphMeasurer.Footprint measure = ObjectGraphMeasurer.measure(controller.latticeManager.getLattice());
-        System.out.print(measure);
+       // ObjectGraphMeasurer.Footprint measure = ObjectGraphMeasurer.measure(controller.latticeManager.getLattice());
+       // System.out.print(measure);
         assertEquals(1, controller.count);
 	}
 

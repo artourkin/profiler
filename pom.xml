@@ -33,9 +33,9 @@
 			</plugin>
 		</plugins>
 	</build>
-	<properties>
+	<payload>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	</properties>
+	</payload>
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
