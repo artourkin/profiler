@@ -15,7 +15,7 @@ public class ControllerTest {
 
 	@Test
 	public void testExecute() {
-		//controller.Execute("/home/artur/rnd/data/govdocs1", "src/test/resources/");
+		controller.Execute("src/test/resources", "src/test/resources/");
        // System.out.print(controller.latticeManager.getLattice());
        // ObjectGraphMeasurer.Footprint measure = ObjectGraphMeasurer.measure(controller.latticeManager.getLattice());
        // System.out.print(measure);

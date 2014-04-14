@@ -47,9 +47,9 @@ public class FileSystemGatherer {
 		this.iterator = FileUtils.iterateFiles(dir, null, true);
 	}
 
-	public InputStream getNext() throws IOException {
+	public File getNext() throws IOException {
 		if (iteratorArchive != null && iteratorArchive.hasNext()) {
-			return new FileInputStream(iteratorArchive.next());
+			return iteratorArchive.next();
 		}
 		if (iterator == null) {
 			throw new IOException("ERROR! Filepath specified incorrectly");
@@ -59,7 +59,7 @@ public class FileSystemGatherer {
 		}
 		File file = iterator.next();
 		if (isXML(file.getName())) {
-			return new FileInputStream(file);
+			return file;
 		} else if (isArchive(file.getName())) {
 			clearTmpDir();
 			MyLogger.print("Extraction started from " + file.getName());

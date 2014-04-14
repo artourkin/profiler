@@ -15,6 +15,7 @@ import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
+import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -27,13 +28,9 @@ public class DOM4Reader {
     final SAXReader reader=new SAXReader();
     public DOM4Reader()    {
     }
-    public  List<Record> read(InputStream is){
+    public  List<Record> read(InputStream is) throws DocumentException {
         Document document=null;
-        try {
-            document = reader.read(is);
-        } catch (DocumentException e) {
-            e.printStackTrace();
-        }
+        document = reader.read(is);
         return read(document);
     }
 
@@ -48,13 +45,9 @@ public class DOM4Reader {
         return result;
     }
 
-    public  List<Record> readC(InputStream is){
+    public  List<Record> readC(File file) throws DocumentException {
         Document document=null;
-        try {
-            document = reader.read(is);
-        } catch (DocumentException e) {
-            e.printStackTrace();
-        }
+        document = reader.read(file);
         return readC(document);
     }
 

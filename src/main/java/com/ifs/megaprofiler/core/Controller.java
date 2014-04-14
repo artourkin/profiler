@@ -1,5 +1,6 @@
 package com.ifs.megaprofiler.core;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -68,14 +69,18 @@ public class Controller {
 
 
     private void reduce() { // reduces elements within a chunk to a single
-        // result
+        File file=null;
         while (fsgatherer.hasNext()){
             try {
-                InputStream inputStream = fsgatherer.getNext();
-                List<Record> records = dom4Reader.readC(inputStream);
-                inputStream.close();
+                file = fsgatherer.getNext();
+                List<Record> records = dom4Reader.readC(file);
                 latticeManager.addRecords(records);
-            } catch (IOException e1) {
+                totalcount++;
+                if (totalcount%1000==0) {
+                    System.out.println("Processed files: " + totalcount + " in " + (System.currentTimeMillis() - start) / 1000.0 );
+                }
+            } catch (Exception e1) {
+                System.out.println("Problem occured with file: " + file.getPath());
                 e1.printStackTrace();
             }
         }
