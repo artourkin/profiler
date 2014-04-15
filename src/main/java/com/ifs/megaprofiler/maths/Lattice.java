@@ -138,7 +138,7 @@ public class Lattice<T> {
             for (int i=0; i<coordinates.size();i++)
             {
                 List<String> strings =  new ArrayList<String>();
-                strings.addAll(valuesByDimension.get(dimensionNames.get(i)));
+                strings.addAll(valuesByDimension.get(significantPropertyNames.get(i)));
                 int indexOf = strings.indexOf(coordinates.get(i));
                 result.add(Integer.toString(indexOf));
             }
@@ -163,7 +163,7 @@ public class Lattice<T> {
     }
 
     /* We store a copy of the dimension names */
-    protected final List<String> dimensionNames;
+    protected final List<String> significantPropertyNames;
 
     /*
      * Each dimension also has a valid set of values, e.g. the
@@ -188,17 +188,17 @@ public class Lattice<T> {
      * meaningful availability axis. For example a List containing the strings
      * "AvailabilityZone", "SoftwareVersion" creates a two dimensional lattice.
      *
-     * @param dimensionNames
+     * @param significantPropertyNames
      *            List of human-meaningful names for the dimensions.
      */
-    public Lattice(List<String> dimensionNames) {
-        if (dimensionNames.size() == 0) {
+    public Lattice(List<String> significantPropertyNames) {
+        if (significantPropertyNames.size() == 0) {
             throw new IllegalArgumentException("At least one dimension is required");
         }
-        this.dimensionNames = dimensionNames;
-        this.valuesByDimension = new HashMap<String, Set<String>>(dimensionNames.size());
+        this.significantPropertyNames = significantPropertyNames;
+        this.valuesByDimension = new HashMap<String, Set<String>>(significantPropertyNames.size());
 
-        for (String dimensionName : dimensionNames) {
+        for (String dimensionName : significantPropertyNames) {
             this.valuesByDimension.put(dimensionName, new HashSet<String>());
         }
     }
@@ -212,13 +212,13 @@ public class Lattice<T> {
      *            The end-points to be added
      */
     public void addEndpointsForSector(List<String> sectorCoordinates, Collection<T> endpoints) {
-        if (sectorCoordinates.size() != dimensionNames.size()) {
+        if (sectorCoordinates.size() != significantPropertyNames.size()) {
             throw new IllegalArgumentException("Mismatch between dimensions of lattice and sector");
         }
 
          /* Add the coordinate values to our list of values by dimension */
-        for (int i = 0; i < dimensionNames.size(); i++) {
-            this.valuesByDimension.get(dimensionNames.get(i)).add(sectorCoordinates.get(i));
+        for (int i = 0; i < significantPropertyNames.size(); i++) {
+            this.valuesByDimension.get(significantPropertyNames.get(i)).add(sectorCoordinates.get(i));
         }
 
         ArrayList<T> toBeAdded = new ArrayList<T>(endpoints);
@@ -243,7 +243,7 @@ public class Lattice<T> {
      * @return All end-points associated with a particular sector
      */
     public Collection<T> getEndpointsForSector(List<String> sectorCoordinates) {
-        if (sectorCoordinates.size() != dimensionNames.size()) {
+        if (sectorCoordinates.size() != significantPropertyNames.size()) {
             throw new IllegalArgumentException("Mismatch between dimensions of lattice and sector");
         }
 
@@ -284,9 +284,9 @@ public class Lattice<T> {
      * @return The dimensionality of this lattice
      */
     public Map<String, Integer> getDimensionality() {
-        Map<String, Integer> dimensionality = new HashMap<String, Integer>(dimensionNames.size());
+        Map<String, Integer> dimensionality = new HashMap<String, Integer>(significantPropertyNames.size());
 
-        for (String dimension : dimensionNames) {
+        for (String dimension : significantPropertyNames) {
             dimensionality.put(dimension, getDimensionValues(dimension).size());
         }
 
@@ -298,8 +298,8 @@ public class Lattice<T> {
      *
      * @return the list of dimension names
      */
-    public List<String> getDimensionNames() {
-        return dimensionNames;
+    public List<String> getSignificantPropertyNames() {
+        return significantPropertyNames;
     }
 
     /**
@@ -310,7 +310,7 @@ public class Lattice<T> {
      * @return the dimension name
      */
     public String getDimensionName(int dimension) {
-        return dimensionNames.get(dimension);
+        return significantPropertyNames.get(dimension);
     }
 
     /**
@@ -347,9 +347,9 @@ public class Lattice<T> {
      * @return A sublattice of the remaining endpoints after a simulated failure
      */
     public Lattice<T> simulateFailure(String dimensionName, String dimensionValue) {
-        Lattice<T> sublattice = new Lattice<T>(dimensionNames);
+        Lattice<T> sublattice = new Lattice<T>(significantPropertyNames);
 
-        int dimensionNumber = dimensionNames.indexOf(dimensionName);
+        int dimensionNumber = significantPropertyNames.indexOf(dimensionName);
         if (dimensionNumber == -1) {
             throw new IllegalArgumentException("Unknown dimension name");
         }
@@ -371,18 +371,18 @@ public class Lattice<T> {
         StringBuilder sb = new StringBuilder();
 
         sb.append("[");
-        for (int i = 0; i < dimensionNames.size(); i++) {
+        for (int i = 0; i < significantPropertyNames.size(); i++) {
             if (i > 0) {
                 sb.append(" , ");
             }
-            sb.append(dimensionNames.get(i));
+            sb.append(significantPropertyNames.get(i));
         }
         sb.append("]");
         sb.append(System.getProperty("line.separator"));
 
         for (Entry<Coordinate, Collection<T>> entry : endpointsByCoordinate.entrySet()) {
             sb.append("[");
-            for (int i = 0; i < dimensionNames.size(); i++) {
+            for (int i = 0; i < significantPropertyNames.size(); i++) {
                 if (i > 0) {
                     sb.append(" , ");
                 }

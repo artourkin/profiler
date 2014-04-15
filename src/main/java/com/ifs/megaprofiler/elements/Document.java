@@ -4,42 +4,37 @@
  */
 package com.ifs.megaprofiler.elements;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * 
+ *
  * @author artur
  */
 public class Document {
 
-	public String name;
-	public Node root;
+    private List<Integer> significantPropertyValueIDs;
+    private List<Record> records;
 
-	public Document() {
-		name = "";
-		root = new Node();
-	}
+    public void setRecords(List<Record> records) {
+        this.records = records;
+    }
 
-	public Document(String name, Node root) {
-		this.name = name;
-		this.root = root;
-	}
+    public List<Integer> getSignificantPropertyValueIDs() {
+        if (significantPropertyValueIDs ==null){
+            significantPropertyValueIDs =new ArrayList<Integer>();
+        }
+        return significantPropertyValueIDs;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setSignificantPropertyValueIDs(List<Integer> significantPropertyValueIDs) {
+        this.significantPropertyValueIDs = significantPropertyValueIDs;
+    }
 
-	public String getName() {
-		return this.name;
-	}
-
-	public void setRoot(Node root) {
-		this.root = root;
-	}
-
-	public Node getRoot() {
-		return this.root;
-	}
-
-    public String getValue(String name) {
-        return root.findValueByName(name);
+    public List<Record> getRecords() {
+        if (records==null) {
+            records=new ArrayList<Record>();
+        }
+        return records;
     }
 }

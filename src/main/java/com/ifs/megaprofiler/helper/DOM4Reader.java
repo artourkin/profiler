@@ -4,7 +4,6 @@ package com.ifs.megaprofiler.helper;
  * Created by artur on 4/11/14.
  */
 
-import com.google.caliper.memory.ObjectGraphMeasurer;
 import com.ifs.megaprofiler.elements.Property;
 import com.ifs.megaprofiler.elements.Record;
 import com.ifs.megaprofiler.elements.Source;
@@ -144,7 +143,7 @@ public class DOM4Reader {
             return null;
         }
         Property result=new Property();
-        result.setKey(element.getName());
+        result.setName(element.getName());
         result.setValue(element.getStringValue());
         result.setSources(getSources(element));
         return result;
@@ -227,7 +226,7 @@ public class DOM4Reader {
         List<Source> sources=getSources(identity);
 
         Property tmp=new Property();
-        tmp.setKey("format");
+        tmp.setName("format");
         tmp.setValue(identity.attribute("format").getValue());
         tmp.setSources(getSources(identity));
 
@@ -240,7 +239,7 @@ public class DOM4Reader {
         List<Source> sources=getSources(identity);
 
         Property tmp=new Property();
-        tmp.setKey("mimetype");
+        tmp.setName("mimetype");
         tmp.setValue(identity.attribute("mimetype").getValue());
         tmp.setSources(getSources(identity));
 

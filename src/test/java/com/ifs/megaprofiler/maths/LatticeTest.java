@@ -83,7 +83,9 @@ public class LatticeTest extends TestCase {
         System.out.print(lattice.toString());
     }
 
-    public void testGetEndpointsForSector() throws Exception {
+   public void testGetEndpointsForSector() throws Exception {
+
+
 
     }
 

@@ -11,7 +11,6 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import com.ifs.megaprofiler.maths.Maths;
-import javax.naming.spi.DirStateFactory;
 
 /**
  *
@@ -94,7 +93,7 @@ public class Node {
             return getValue();
         if (this.properties.size() > 0 ) {
             for( Property p: this.properties){
-                if (p.getKey().equals(name)) {
+                if (p.getName().equals(name)) {
                     return p.getValue();
                 }
             }
@@ -229,7 +228,7 @@ public class Node {
 
     public Property getProperty(String name) {
         for (Property prop : this.properties) {
-            if (prop.getKey().equals(name)) {
+            if (prop.getName().equals(name)) {
                 return prop;
             }
         }

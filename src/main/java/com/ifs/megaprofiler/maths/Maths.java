@@ -91,21 +91,6 @@ public class Maths {
         return null;
     }
 
-    public static Document reduce(Document d1, Document d2) throws Exception {
-        Document d;
-        d = new Document();
-        if (d1 == null && d2 != null) {
-            d.root = d2.root;
-        } else if (d1 != null && d2 == null) {
-            d.root = d1.root;
-        } else if (d1 == null && d2 == null) {
-            d = null;
-        } else if (d1 != null && d2 != null) {
-            d.root = reduce(d1.root, d2.root);
-            updateStats(d.root);
-        }
-        return d;
-    }
 
     private static void updateStats(Node root) {
         Node stats = root.getNode("stats");
@@ -149,38 +134,25 @@ public class Maths {
 
         result.count = stats.count;
         result.value = String.valueOf(value);
-        result.addProperty(new Property("max", String.valueOf(max),
-                Property.Type.String));
-        result.addProperty(new Property("min", String.valueOf(min),
-                Property.Type.String));
-        float avg = (float) (value / (stats.count * 1.0));
-        result.addProperty(new Property("avg", String.valueOf(avg),
-                Property.Type.String));
-        float var = (float) (diff / (stats.count * 1.0));
-        result.addProperty(new Property("var", String.valueOf(var),
-                Property.Type.String));
-        float sd = (float) (Math.sqrt(var));
-        result.addProperty(new Property("sd", String.valueOf(sd),
-                Property.Type.String));
+     //   result.addProperty(new Property("max", String.valueOf(max),
+      //          Property.Type.String));
+      //  result.addProperty(new Property("min", String.valueOf(min),
+      //          Property.Type.String));
+      //  float avg = (float) (value / (stats.count * 1.0));
+      //  result.addProperty(new Property("avg", String.valueOf(avg),
+      //          Property.Type.String));
+      //  float var = (float) (diff / (stats.count * 1.0));
+      //  result.addProperty(new Property("var", String.valueOf(var),
+      //          Property.Type.String));
+      //  float sd = (float) (Math.sqrt(var));
+      //  result.addProperty(new Property("sd", String.valueOf(sd),
+      //          Property.Type.String));
         stats.nodes = new ArrayList<Node>();
         stats.addNode(result);
         // return root;
     }
 
-    public static Document reduce(List<Document> list) throws Exception {
-        if (list.isEmpty()) {
-            return null;
-        }
-        if (list.size() == 1) {
-            return list.get(0);
-        }
-        Document result = list.get(0);
-        list.remove(0);
-        for (Document document : list) {
-            result = reduce(result, document);
-        }
-        return result;
-    }
+
 
     public static List<List<Property>> cartesianProduct(List<List<Property>> lists) {
         List<List<Property>> resultLists = new ArrayList<List<Property>>();

@@ -2,19 +2,14 @@ package com.ifs.megaprofiler.core;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
+import java.net.UnknownHostException;
 import java.util.List;
-import java.util.ListIterator;
 
-import com.ifs.megaprofiler.elements.Endpoint;
-import com.ifs.megaprofiler.elements.LatticeManager;
+import com.ifs.megaprofiler.elements.MongoDBManager;
 import com.ifs.megaprofiler.elements.Record;
 import com.ifs.megaprofiler.helper.DOM4Reader;
 import com.ifs.megaprofiler.helper.MyLogger;
 import com.ifs.megaprofiler.helper.ResourceLoader;
-import com.ifs.megaprofiler.helper.XmlSerializer;
-import com.ifs.megaprofiler.maths.Lattice;
 
 public class Controller {
 
@@ -26,13 +21,16 @@ public class Controller {
     long timeReduceTmp;
     long time;
     long timeReduce;
-    Aggregator aggregator;
     FileSystemGatherer fsgatherer;
-    LatticeManager latticeManager;
+    MongoDBManager latticeManager;
     DOM4Reader dom4Reader;
     public Controller() {
         count = 0;
-        latticeManager=new LatticeManager(ResourceLoader.getLatticeProperties());
+        try {
+            latticeManager=new MongoDBManager(ResourceLoader.getLatticeProperties());
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
         dom4Reader=new DOM4Reader();
     }
     public void Execute(String path, String profilepath) {
@@ -45,7 +43,7 @@ public class Controller {
         try {
             initialize(path);
         } catch (Exception e) {
-            MyLogger.print(Aggregator.class.getName() + ", exception:"
+            MyLogger.print("exception:"
                     + e.getMessage());
             return;
         }
@@ -58,7 +56,6 @@ public class Controller {
 
     private void initialize(String path) throws IOException {
         MyLogger.print("Initialization...");
-        aggregator = new Aggregator();
         start = System.currentTimeMillis();
         stopReduce = System.currentTimeMillis();
         totalcount = 0;

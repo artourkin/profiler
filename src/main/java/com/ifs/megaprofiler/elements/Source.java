@@ -1,36 +1,35 @@
 package com.ifs.megaprofiler.elements;
 
+import com.google.gson.annotations.Expose;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 /**
  * Created by artur on 4/10/14.
  */
 public class Source {
-    private String id;
-
+    private Integer id;
     private String name;
-
     private String version;
 
-    private int i=0;
 
     public Source(String name, String version){
-        this.id= Integer.toString(i++);
         this.name=name;
         this.version=version;
+        this.id=0;
     }
 
     public Source(String name){
-        this.id= Integer.toString(i++);
         this.name=name;
-        this.version= "" ;
+        this.version= "";
+        this.id=0;
+
     }
 
-    public String getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

@@ -4,6 +4,7 @@
  */
 package com.ifs.megaprofiler.elements;
 
+import com.google.gson.annotations.Expose;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import java.util.ArrayList;
@@ -14,10 +15,11 @@ import java.util.List;
  * @author artur
  */
 public class Property {
-
-    private String key;
+    @Expose
+    private String name;
+    @Expose
     private String value;
-
+    @Expose
     private List<Source> sources;
 
     public enum Type {
@@ -27,30 +29,22 @@ public class Property {
     public Type type;
 
     public Property() {
-        this.type=Type.String;
     }
 
-    public Property(String key, String value, Type type) {
-        this.key = key;
+    public Property(String name, String value) {
+        this.name = name;
         this.value = value;
-        this.type = type;
-    }
-    public Property(String key, String value) {
-        this.key = key;
-        this.value = value;
-        this.type = Type.String;
         this.sources=new ArrayList<Source>();
     }
 
-    public Property(String key, String value, List<Source> sources) {
-        this.key = key;
+    public Property(String name, String value, List<Source> sources) {
+        this.name = name;
         this.value = value;
-        this.type = Type.String;
         this.sources = sources;
     }
 
-    public String getKey() {
-        return key;
+    public String getName() {
+        return name;
     }
 
     public String getValue() {
@@ -65,8 +59,8 @@ public class Property {
         this.sources = sources;
     }
 
-    public void setKey(String key) {
-        this.key = key;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public void setValue(String value) {
@@ -78,8 +72,8 @@ public class Property {
     }
 
 
-    public List<String> getSourceIDs(){
-        List<String> result=new ArrayList<String>();
+    public List<Integer> getSourceIDs(){
+        List<Integer> result=new ArrayList<Integer>();
         for(Source s: sources){
             result.add(s.getId());
         }
@@ -88,7 +82,7 @@ public class Property {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(13, 37).append(value).append(key)
+        return new HashCodeBuilder(13, 37).append(value).append(name)
                 .toHashCode();
     }
 
@@ -104,7 +98,7 @@ public class Property {
             return false;
         }
         Property p = (Property) obj;
-        if (this.key.equals(p.key) && this.value.equals(p.value)) {
+        if (this.name.equals(p.name) && this.value.equals(p.value)) {
             return true;
         }
         return false;

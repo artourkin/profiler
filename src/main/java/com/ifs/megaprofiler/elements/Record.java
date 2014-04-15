@@ -1,5 +1,7 @@
 package com.ifs.megaprofiler.elements;
 
+import com.google.gson.annotations.Expose;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,7 +9,9 @@ import java.util.List;
  * Created by artur on 4/10/14.
  */
 public class Record {
+    @Expose
     private List<Property> properties;
+    @Expose
     private String uid;
 
     public Record(){
@@ -41,8 +45,8 @@ public class Record {
     public List<String> getPropertiesToString() {
         List<String> result = new ArrayList<String>();
         for (Property p: this.properties) {
-            if (!result.contains(p.getKey())) {
-                result.add(p.getKey());
+            if (!result.contains(p.getName())) {
+                result.add(p.getName());
             }
         }
         return result;
@@ -63,12 +67,12 @@ public class Record {
         return result;
     }
 
-    public List<List<String>> getSourceIDs(List<String> propertyNames){
-        List<List<String>> result= new ArrayList<List<String>>();
+    public List<List<Integer>> getSourceIDsbyPropertyNames(List<String> propertyNames){
+        List<List<Integer>> result= new ArrayList<List<Integer>>();
         for (String propertyName: propertyNames){
-            List<String> sourceIDsbyProperty=new ArrayList<String>();   //TODO:check if null is the best value here. Maybe empty list is better
+            List<Integer> sourceIDsbyProperty=new ArrayList<Integer>();   //TODO:check if null is the best value here. Maybe empty list is better
             for (Property p : properties){
-                if (p.getKey().equals(propertyName)) {
+                if (p.getName().equals(propertyName)) {
                     sourceIDsbyProperty = p.getSourceIDs();
                     break;
                 }
@@ -83,7 +87,7 @@ public class Record {
         for (String propertyName: propertyNames){
             List<Source> sourcesByPropertyName=new ArrayList<Source>();   //TODO:check if null is the best value here. Maybe empty list is better
             for (Property p : properties){
-                if (p.getKey().equals(propertyName)) {
+                if (p.getName().equals(propertyName)) {
                     sourcesByPropertyName = p.getSources();
                     break;
                 }
@@ -94,12 +98,12 @@ public class Record {
     }
 
 
-    public List<String> getPropertyValues(List<String> propertyNames){
+    public List<String> getSignificantPropertyValues(List<String> significantPropertyNames){
         List<String> result = new ArrayList<String>();
-        for (String propertyName: propertyNames){
+        for (String propertyName: significantPropertyNames){
             String propertyValue="";
             for (Property p : properties){
-                if (p.getKey().equals(propertyName)) {
+                if (p.getName().equals(propertyName)) {
                     propertyValue=p.getValue();
                     break;
                 }
