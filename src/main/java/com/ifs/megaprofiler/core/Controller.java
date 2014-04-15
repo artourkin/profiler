@@ -22,7 +22,7 @@ public class Controller {
     long time;
     long timeReduce;
     FileSystemGatherer fsgatherer;
-    MongoDBManager latticeManager;
+    public MongoDBManager latticeManager;
     DOM4Reader dom4Reader;
     public Controller() {
         count = 0;
@@ -81,6 +81,7 @@ public class Controller {
                 e1.printStackTrace();
             }
         }
+        latticeManager.updateDB();
     }
 
     private void terminate() {

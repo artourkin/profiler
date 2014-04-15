@@ -30,7 +30,7 @@ public class DocumentTest extends TestCase {
         integers.add(7);
         Document document=new Document();
         document.setRecords(records);
-        document.setSignificantPropertyValueIDs(integers);
+        document.setPropertyValueIDs(integers);
 
 
     }

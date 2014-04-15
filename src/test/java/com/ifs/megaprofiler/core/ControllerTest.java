@@ -15,9 +15,11 @@ public class ControllerTest {
 
 	@Test
 	public void testExecute() {
-		controller.Execute("/home/artur/rnd/data/fits/produced", "src/test/resources/");
+		controller.Execute("/home/artur/rnd/data/govdocs_subset", "src/test/resources/");
+        controller.latticeManager.clear();
         // /home/artur/rnd/data/fits/produced
         // /src/test/resources
+        // /home/artur/rnd/data/govdocs_subset
 
        // System.out.print(controller.latticeManager.getLattice());
        // ObjectGraphMeasurer.Footprint measure = ObjectGraphMeasurer.measure(controller.latticeManager.getLattice());

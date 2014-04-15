@@ -13,22 +13,22 @@ import java.util.List;
  */
 public class Document {
 
-    private List<Integer> significantPropertyValueIDs;
+    private List<Integer> propertyValueIDs;
     private List<Record> records;
 
     public void setRecords(List<Record> records) {
         this.records = records;
     }
 
-    public List<Integer> getSignificantPropertyValueIDs() {
-        if (significantPropertyValueIDs ==null){
-            significantPropertyValueIDs =new ArrayList<Integer>();
+    public List<Integer> getPropertyValueIDs() {
+        if (propertyValueIDs ==null){
+            propertyValueIDs =new ArrayList<Integer>();
         }
-        return significantPropertyValueIDs;
+        return propertyValueIDs;
     }
 
-    public void setSignificantPropertyValueIDs(List<Integer> significantPropertyValueIDs) {
-        this.significantPropertyValueIDs = significantPropertyValueIDs;
+    public void setPropertyValueIDs(List<Integer> propertyValueIDs) {
+        this.propertyValueIDs = propertyValueIDs;
     }
 
     public List<Record> getRecords() {
