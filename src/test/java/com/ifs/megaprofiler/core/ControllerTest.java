@@ -16,7 +16,7 @@ public class ControllerTest {
 	@Test
 	public void testExecute() {
 		controller.Execute("/home/artur/rnd/data/govdocs_subset", "src/test/resources/");
-        controller.latticeManager.clear();
+        //controller.latticeManager.clear();
         // /home/artur/rnd/data/fits/produced
         // /src/test/resources
         // /home/artur/rnd/data/govdocs_subset

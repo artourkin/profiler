@@ -15,14 +15,19 @@ import java.util.*;
 public class MongoDBManager {
     protected List<String> propertyNames;
     protected Map<Integer, Set<String>> propertyValuesByID;
-    Gson gson = new GsonBuilder().create();
+    private Gson gson = new GsonBuilder().create();
     private DB db;
+    private DBCollection recordsDB;
+    private DBCollection conflictedRecordsDB;
+    private DBCollection propertiesDB;
+    private DBCollection propertyValuesDB;
+    private DBCollection sourcesDB;
     private List<Source> availableSources;
-    private Map<String, List<Endpoint>> conflictedRecords;
+   // private Map<String, List<Endpoint>> conflictedRecords;
     private int i = 0;
 
     public MongoDBManager(List<String> significantPropertyNames) throws UnknownHostException {
-        this.conflictedRecords = new HashMap<String, List<Endpoint>>();
+        //this.conflictedRecords = new HashMap<String, List<Endpoint>>();
         initialize(significantPropertyNames);
     }
 
@@ -35,9 +40,12 @@ public class MongoDBManager {
             System.exit(0);
         }
         db = mongodb.getDB("mydb");
-        db.getCollection("documents").ensureIndex(new BasicDBObject("significantPropertyValueIDs", 1).append("name", true).append("unique", true));
-        db.getCollection("sources").ensureIndex(new BasicDBObject("id", 1).append("name", true).append("unique", true));
-        db.getCollection("properties").ensureIndex(new BasicDBObject("id", 1).append("name", true).append("unique", true));
+        propertiesDB = db.getCollection("properties");
+        propertyValuesDB = db.getCollection("propertyValues");
+        recordsDB = db.getCollection("records");
+        conflictedRecordsDB = db.getCollection("conflictedRecords");
+        sourcesDB = db.getCollection("sources");
+
         try {
             fetchPropertyNames(significantPropertyNames);
         } catch (IOException e) {
@@ -53,11 +61,15 @@ public class MongoDBManager {
         for (int i = 0; i < propertyNames.size(); i++) {
             this.propertyValuesByID.put(i, new HashSet<String>());
         }
-        DBCollection propertyValuesDB = db.getCollection("propertyValues");
+
         DBCursor dbCursor = propertyValuesDB.find();
         if (dbCursor.size()>0) {
-            DBObject dbObject = dbCursor.next();
-            //  gson.fromJson(dbObject.toString(),(Map.Entry<Integer, Set<String>>).getClass());
+            while (dbCursor.hasNext()) {
+                DBObject dbObject = dbCursor.next();
+                Integer key=(Integer) dbObject.get("key");
+                List<String> values =(List<String>) dbObject.get("value");
+                propertyValuesByID.put(key, new HashSet<String>(values));
+            }
         }
     }
 
@@ -65,7 +77,6 @@ public class MongoDBManager {
         if (significantPropertyNames==null || significantPropertyNames.size()==0){
             throw new IOException("significant properties are not defined");
         }
-        DBCollection propertiesDB = db.getCollection("properties");
         DBCursor dbCursor = propertiesDB.find();
         if (dbCursor.size()>0) {
             int size = dbCursor.size();
@@ -82,12 +93,14 @@ public class MongoDBManager {
 
     private void fetchSources() {
         availableSources = new ArrayList<Source>();
-        DBCollection propertiesDB = db.getCollection("properties");
-        DBCursor dbCursor = propertiesDB.find();
+
+        DBCursor dbCursor = sourcesDB.find();
         if (dbCursor.size()>0) {
-            DBObject dbObject = dbCursor.next();
-            Source tmp_source = gson.fromJson(dbObject.toString(), Source.class);
-            availableSources.add(tmp_source);
+            while (dbCursor.hasNext()) {
+                DBObject dbObject = dbCursor.next();
+                Source tmp_source = gson.fromJson(dbObject.toString(), Source.class);
+                availableSources.add(tmp_source);
+            }
         }
     }
 
@@ -99,7 +112,6 @@ public class MongoDBManager {
     }
 
     private void updatePropertyNamesDB() {
-        DBCollection propertiesDB = db.getCollection("properties");
         propertiesDB.drop();
         for (int i = 0; i < propertyNames.size(); i++) {
             String propertyname = propertyNames.get(i);
@@ -108,7 +120,6 @@ public class MongoDBManager {
         }
     }
     private void updatePropertyValuesByID() {
-        DBCollection propertyValuesDB = db.getCollection("propertyValues");
         propertyValuesDB.drop();
         Iterator<Map.Entry<Integer, Set<String>>> iterator = propertyValuesByID.entrySet().iterator();
         while (iterator.hasNext()) {
@@ -117,34 +128,14 @@ public class MongoDBManager {
             propertyValuesDB.insert(dbObject);
         }
     }
-    private void updateSources()
-    {
-        DBCollection sourcesDB = db.getCollection("sources");
+    private void updateSources()   {
         sourcesDB.drop();
         for (int i = 0; i < availableSources.size(); i++) {
             DBObject dbObject = getDBObject(availableSources.get(i));
             sourcesDB.insert(dbObject);
         }
     }
-    public List<String> getPropertyNames() {
-        return this.propertyNames;
-    }
 
-    public List<Source> getAvailableSources() {
-        return availableSources;
-    }
-
-    public void setAvailableSources(List<Source> availableSources) {
-        this.availableSources = availableSources;
-    }
-
-    public Document createDocument(Coordinate coordinate) {
-
-        Document result = new Document();
-        result.setPropertyValueIDs(coordinate);
-
-        return result;
-    }
 
 
 
@@ -179,11 +170,13 @@ public class MongoDBManager {
         String conflictedRecordName = records.get(0).getUid();
         List<Endpoint> conflictedEndpoints = new ArrayList<Endpoint>();
         for (Record r : records) {
-            Endpoint tmp = new Endpoint(conflictedRecordName, null);
-            tmp.setPayload(r.getProperties());
+            Endpoint tmp = new Endpoint();
+            tmp.setRecord(r);
+            tmp.setCoordinates(getCoordinates(r));
             conflictedEndpoints.add(tmp);
         }
-        conflictedRecords.put(conflictedRecordName, conflictedEndpoints);
+        DBObject dbObject = new BasicDBObject("uid", conflictedRecordName).append("records",getDBObject(conflictedEndpoints));
+        conflictedRecordsDB.insert(dbObject);
     }
 
     public void addRecord(Record record) {
@@ -191,46 +184,14 @@ public class MongoDBManager {
             p.setSources(addSources(p.getSources()));
         }
 
-        DBCollection documentsDB = db.getCollection("documents");
+        Endpoint endpoint=new Endpoint();
+        endpoint.setCoordinates(getCoordinates(record));
+        endpoint.setRecord(record);
 
-        Document document = new Document();
-        document.setPropertyValueIDs(getCoordinates(record));
-        DBObject tmp_dbObject=getDBObject(document);
-        DBObject foundDocument = documentsDB.findOne(tmp_dbObject);
-        document.getRecords().add(record);
-        DBObject dbObject = getDBObject(document);
-        if (foundDocument!=null){
-            documentsDB.update(foundDocument, dbObject);
-        } else {
-            documentsDB.insert(dbObject);
-        }
-
-        //TODO: temporary call. Should be removed
-
-        //addPropertyValue(record.getProperties().get(0));
+        DBObject dbObject = getDBObject(endpoint);
+        recordsDB.insert(dbObject);
 
 
-        //updateSignificantPropertyValuesByID();
-    }
-
-    private void addProperty(Property property) {
-        if (propertyNames.contains(property.getName())) {
-            DBCollection propertyValuesDB = db.getCollection("propertyValues");
-            DBCursor dbCursor = propertyValuesDB.find();
-            if (dbCursor.hasNext()) {
-                int size = dbCursor.size();
-                propertyValuesByID = new HashMap<Integer, Set<String>>(size);
-                while (dbCursor.hasNext()) {
-                    DBObject next = dbCursor.next();
-                    Integer id = (Integer) next.get("id");
-                    String name = (String) next.get("name");
-                    propertyNames.add(id, name);
-
-                }
-            }
-            propertyValuesByID.get(propertyNames.indexOf(property.getName())).add(property.getValue());
-
-        }
     }
 
     private void addPropertyValue(Property property) {
@@ -243,14 +204,6 @@ public class MongoDBManager {
         for(Property p: properties) {
             addPropertyValue(p);
         }
-    }
-
-
-
-
-
-    private Integer getPropertyIDByName(String propertyName) {
-        return propertyNames.indexOf(propertyName);
     }
 
     private List<Source> addSources(List<Source> sources) {
@@ -277,11 +230,6 @@ public class MongoDBManager {
         }
     }
 
-    private Source getSource(String sourceName, String sourceVersion) {
-        Source tmp = new Source(sourceName, sourceVersion);
-        return addSource(tmp);
-    }
-
     private Source getSource(String sourceID) {
         if (availableSources != null && availableSources.size() > 0) {
             for (Source s : availableSources) {
@@ -292,26 +240,8 @@ public class MongoDBManager {
         return null;
     }
 
-    private Integer getIDBySource(Source source) {
-        return addSource(source).getId();
-    }
-
-    private List<Source> getSources(List<String> sourceIDs) {
-        List<Source> result = new ArrayList<Source>();
-        for (String sourceID : sourceIDs) {
-            result.add(getSource(sourceID));
-        }
-        return result;
-    }
-
-
-
     public void clear() {
         db.dropDatabase();
-    }
-
-    private Coordinate getCoordinates(List<String> significantPropertyValues) {
-        return new Coordinate(significantPropertyValues);
     }
 
     private Coordinate getCoordinates(Record record) {

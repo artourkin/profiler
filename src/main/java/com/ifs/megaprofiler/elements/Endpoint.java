@@ -7,37 +7,23 @@ import java.util.List;
  * Created by artur on 4/10/14.
  */
 public class Endpoint {
-    private List<List<String>> sourceIDs;
-    private List<Property> payload;
-    private String uid;
+    private List<Integer> propertyValues;
+    private Record record;
 
-    public Endpoint(String uid, List<List<String>> sources) {
-        this.sourceIDs = sources;
-        this.uid=uid;
-        this.payload =new ArrayList<Property>();
+    public List<Integer> getPropertyValues() {
+        return propertyValues;
     }
 
-    public List<List<String>> getSources() {
-        return sourceIDs;
+    public void setCoordinates(List<Integer> propertyValues) {
+        this.propertyValues = propertyValues;
     }
 
-    public void setSources(List<List<String>> sourceIDs) {
-        this.sourceIDs = sourceIDs;
+    public Record getRecord() {
+        return record;
     }
 
-    public String getUid() {
-        return uid;
-    }
-
-    public void setUid(String uid) {
-        this.uid = uid;
-    }
-
-    public List<Property> getPayload() {
-        return payload;
-    }
-
-    public void setPayload(List<Property> payload) {
-        this.payload = payload;
+    public void setRecord(Record record) {
+        this.record = record;
     }
 }
+

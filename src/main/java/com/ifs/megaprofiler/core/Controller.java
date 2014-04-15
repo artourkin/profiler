@@ -27,7 +27,7 @@ public class Controller {
     public Controller() {
         count = 0;
         try {
-            latticeManager=new MongoDBManager(ResourceLoader.getLatticeProperties());
+            latticeManager=new MongoDBManager(ResourceLoader.getSignificantProperties());
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
