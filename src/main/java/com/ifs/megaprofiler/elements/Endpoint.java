@@ -1,5 +1,7 @@
 package com.ifs.megaprofiler.elements;
 
+import com.ifs.megaprofiler.maths.Lattice;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,15 +9,15 @@ import java.util.List;
  * Created by artur on 4/10/14.
  */
 public class Endpoint {
-    private List<Integer> propertyValues;
+    private Coordinate coordinates;
     private Record record;
 
-    public List<Integer> getPropertyValues() {
-        return propertyValues;
+    public Coordinate getPropertyValues() {
+        return coordinates;
     }
 
-    public void setCoordinates(List<Integer> propertyValues) {
-        this.propertyValues = propertyValues;
+    public void setCoordinates(Coordinate propertyValues) {
+        this.coordinates = propertyValues;
     }
 
     public Record getRecord() {

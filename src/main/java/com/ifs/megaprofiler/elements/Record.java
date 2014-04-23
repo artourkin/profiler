@@ -2,8 +2,7 @@ package com.ifs.megaprofiler.elements;
 
 import com.google.gson.annotations.Expose;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by artur on 4/10/14.
@@ -98,20 +97,22 @@ public class Record {
     }
 
 
-    public List<String> getSignificantPropertyValues(List<String> significantPropertyNames){
+    public List<String> getSignificantPropertyValues(Map<String, List<String>> propertyValues){
         List<String> result = new ArrayList<String>();
-        for (String propertyName: significantPropertyNames){
-            String propertyValue="";
-            for (Property p : properties){
-                if (p.getName().equals(propertyName)) {
-                    propertyValue=p.getValue();
-                    break;
-                }
+        for (Property p : properties) {
+            if (!propertyValues.keySet().contains(p.getName())) {
+                continue;
             }
-            result.add(propertyValue);
+            String encodedP="";
+            List<String> tmp_list= new ArrayList<String>(propertyValues.keySet());
+            encodedP+= tmp_list.indexOf(p.getName())+"_";
+            encodedP+= propertyValues.get(p.getName()).indexOf(p.getValue());
+            result.add(encodedP);
         }
+
         return result;
     }
+
 
 
 }

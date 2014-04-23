@@ -21,7 +21,7 @@ public class DocumentTest extends TestCase {
         List<String> significantPropertyNames = ResourceLoader.getSignificantProperties();
         File file=new File("src/test/resources/jpeg.fits.xml");
         List<Record> records = dom4Reader.readC(file);
-        List<String> significantPropertyValues = records.get(0).getSignificantPropertyValues(significantPropertyNames);
+        //List<String> significantPropertyValues = records.get(0).getSignificantPropertyValues(significantPropertyNames);
 
         List<Integer> integers=new ArrayList<Integer>();
         integers.add(1);

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.List;
 
+import com.ifs.megaprofiler.elements.Filter;
 import com.ifs.megaprofiler.elements.MongoDBManager;
 import com.ifs.megaprofiler.elements.Record;
 import com.ifs.megaprofiler.helper.DOM4Reader;
@@ -52,6 +53,10 @@ public class Controller {
         //serializeResults(profilepath);
         System.out.println("Process finished");
         MyLogger.print("Process finished");
+    }
+
+    public void applyFilter(Filter filter) {
+        latticeManager.applyFilter(filter);
     }
 
     private void initialize(String path) throws IOException {

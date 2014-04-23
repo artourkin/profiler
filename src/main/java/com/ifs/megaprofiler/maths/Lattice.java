@@ -122,7 +122,7 @@ public class Lattice<T> {
      * coordinates can be used as ordered keys in a map.
      */
     @SuppressWarnings("serial")
-    protected class Coordinate extends ArrayList<String> implements Comparable<Coordinate> {
+    public class Coordinate extends ArrayList<String> implements Comparable<Coordinate> {
 
         public Coordinate(List<String> sectorCoordinates) {
             super(sectorCoordinates);

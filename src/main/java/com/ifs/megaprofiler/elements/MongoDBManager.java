@@ -14,7 +14,7 @@ import java.util.*;
  */
 public class MongoDBManager {
     protected List<String> propertyNames;
-    protected Map<Integer, Set<String>> propertyValuesByID;
+    protected Map<String, List<String>> propertyValuesByName;
     private Gson gson = new GsonBuilder().create();
     private DB db;
     private DBCollection recordsDB;
@@ -23,7 +23,7 @@ public class MongoDBManager {
     private DBCollection propertyValuesDB;
     private DBCollection sourcesDB;
     private List<Source> availableSources;
-   // private Map<String, List<Endpoint>> conflictedRecords;
+    // private Map<String, List<Endpoint>> conflictedRecords;
     private int i = 0;
 
     public MongoDBManager(List<String> significantPropertyNames) throws UnknownHostException {
@@ -43,52 +43,37 @@ public class MongoDBManager {
         propertiesDB = db.getCollection("properties");
         propertyValuesDB = db.getCollection("propertyValues");
         recordsDB = db.getCollection("records");
+        recordsDB.ensureIndex(new BasicDBObject("coordinates", 1).append("name", true));
         conflictedRecordsDB = db.getCollection("conflictedRecords");
         sourcesDB = db.getCollection("sources");
 
         try {
-            fetchPropertyNames(significantPropertyNames);
+            fetchPropertyValuesByName(significantPropertyNames);
         } catch (IOException e) {
             e.printStackTrace();
             System.exit(0);
         }
         fetchSources();
-        fetchPropertyValuesByID();
+
     }
 
-    private void fetchPropertyValuesByID() {
-        propertyValuesByID = new HashMap<Integer, Set<String>>(propertyNames.size());
-        for (int i = 0; i < propertyNames.size(); i++) {
-            this.propertyValuesByID.put(i, new HashSet<String>());
+    private void fetchPropertyValuesByName(List<String> propertyNames) throws IOException {
+        if (propertyNames==null || propertyNames.size()==0){
+            throw new IOException("significant properties are not defined");
         }
-
+        propertyValuesByName = new HashMap<String, List<String>>(propertyNames.size());
+        for (int i = 0; i < propertyNames.size(); i++) {
+            this.propertyValuesByName.put(propertyNames.get(i), new ArrayList<String>());
+        }
         DBCursor dbCursor = propertyValuesDB.find();
         if (dbCursor.size()>0) {
             while (dbCursor.hasNext()) {
                 DBObject dbObject = dbCursor.next();
-                Integer key=(Integer) dbObject.get("key");
+                String key=(String) dbObject.get("key");
                 List<String> values =(List<String>) dbObject.get("value");
-                propertyValuesByID.put(key, new HashSet<String>(values));
+                propertyValuesByName.put(key,values);
             }
         }
-    }
-
-    private void fetchPropertyNames(List<String> significantPropertyNames) throws IOException {
-        if (significantPropertyNames==null || significantPropertyNames.size()==0){
-            throw new IOException("significant properties are not defined");
-        }
-        DBCursor dbCursor = propertiesDB.find();
-        if (dbCursor.size()>0) {
-            int size = dbCursor.size();
-            significantPropertyNames = new ArrayList<String>(size);
-            while (dbCursor.hasNext()) {
-                DBObject next = dbCursor.next();
-                Integer id = (Integer) next.get("id");
-                String name = (String) next.get("name");
-                significantPropertyNames.add(id, name);
-            }
-        }
-        this.propertyNames = significantPropertyNames;
     }
 
     private void fetchSources() {
@@ -106,24 +91,16 @@ public class MongoDBManager {
 
     public void updateDB()
     {
-        updatePropertyNamesDB();
         updateSources();
         updatePropertyValuesByID();
     }
 
-    private void updatePropertyNamesDB() {
-        propertiesDB.drop();
-        for (int i = 0; i < propertyNames.size(); i++) {
-            String propertyname = propertyNames.get(i);
-            DBObject dbObject = new BasicDBObject("id", i).append("name", propertyname);
-            propertiesDB.insert(dbObject);
-        }
-    }
+
     private void updatePropertyValuesByID() {
         propertyValuesDB.drop();
-        Iterator<Map.Entry<Integer, Set<String>>> iterator = propertyValuesByID.entrySet().iterator();
+        Iterator<Map.Entry<String, List<String>>> iterator = propertyValuesByName.entrySet().iterator();
         while (iterator.hasNext()) {
-            Map.Entry<Integer, Set<String>> entry = iterator.next();
+            Map.Entry<String, List<String>> entry = iterator.next();
             DBObject dbObject = getDBObject(entry);
             propertyValuesDB.insert(dbObject);
         }
@@ -195,8 +172,12 @@ public class MongoDBManager {
     }
 
     private void addPropertyValue(Property property) {
-        if (propertyNames.contains(property.getName())) {
-            propertyValuesByID.get(propertyNames.indexOf(property.getName())).add(property.getValue());
+        if (propertyValuesByName.keySet().contains(property.getName())) {
+            List<String> strings = propertyValuesByName.get(property.getName());
+            if (!strings.contains(property.getValue())) {
+                strings.add(property.getValue());
+            }
+            //propertyValuesByName.get(property.getName()).add(property.getValue());
         }
     }
 
@@ -211,6 +192,41 @@ public class MongoDBManager {
         for (Source s : sources) {
             result.add(addSource(s));
         }
+        return result;
+    }
+
+    public void applyFilter(Filter filter) {
+        List<FilterCondition> conditions = filter.getConditions();
+        List<Property> result=new ArrayList<Property>();
+        for(FilterCondition fc: conditions){
+            result.add(new Property(fc.getField(), (String)fc.getValue()));
+        }
+        Coordinate coordinates = getCoordinates(result);
+
+        DBObject query = new BasicDBObject("$in", getDBObject(coordinates));
+        DBObject dbObject=new BasicDBObject();
+        dbObject.put("coordinates",query);
+
+        DBCursor dbCursor = recordsDB.find(dbObject);
+        int count = dbCursor.count();
+
+    }
+
+    public List<String> getSignificantPropertyValues(List<Property> properties){
+        List<String> result = new ArrayList<String>();
+        for (Property p : properties) {
+            if (!propertyValuesByName.keySet().contains(p.getName())){
+                continue;
+            }
+            String encodedP="";
+            int i=0;
+            List<String> tmp_list= new ArrayList<String>(propertyValuesByName.keySet());
+            encodedP+= tmp_list.indexOf(p.getName())+"_";
+            tmp_list= new ArrayList<String>(propertyValuesByName.get(p.getName()));
+            encodedP+= tmp_list.indexOf(p.getValue());
+            result.add(encodedP);
+        }
+
         return result;
     }
 
@@ -246,50 +262,13 @@ public class MongoDBManager {
 
     private Coordinate getCoordinates(Record record) {
         addPropertyValues(record.getProperties());
-        return new Coordinate(record.getSignificantPropertyValues(propertyNames));
+        List<String> significantPropertyValues = record.getSignificantPropertyValues(propertyValuesByName);
+        return new Coordinate(significantPropertyValues);
     }
 
-
-
-    protected class Coordinate extends ArrayList<Integer> implements Comparable<Coordinate> {
-
-        public Coordinate(List<String> sectorCoordinates) {
-            ArrayList<Integer> integers = ToNumericCoordinates(sectorCoordinates);
-            this.addAll(integers);
-        }
-
-        public ArrayList<Integer> ToNumericCoordinates(List<String> coordinates) {
-            ArrayList<Integer> result = new ArrayList<Integer>();
-
-            for (int i = 0; i < propertyNames.size(); i++) {
-                propertyValuesByID.get(i).add(coordinates.get(i));
-            }
-
-            for (int i = 0; i < coordinates.size(); i++) {
-                List<String> strings = new ArrayList<String>();
-                strings.addAll(propertyValuesByID.get(i));
-                int indexOf = strings.indexOf(coordinates.get(i));
-                result.add(indexOf);
-            }
-            return result;
-        }
-
-
-        @Override
-        public int compareTo(Coordinate other) {
-
-            for (int i = 0; i < this.size(); i++) {
-                if (other.size() < i) {
-                    return -1;
-                }
-                if (!other.get(i).equals(this.get(i))) {
-                    return this.get(i).compareTo(other.get(i));
-                }
-            }
-
-            return 0;
-        }
-
+    private Coordinate getCoordinates(List<Property> properties) {
+        List<String> significantPropertyValues     = getSignificantPropertyValues(properties);
+        return new Coordinate(significantPropertyValues);
     }
 
 }
