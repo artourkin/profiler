@@ -32,9 +32,9 @@ public class MongoDBManager {
     }
 
     private void initialize(List<String> significantPropertyNames) {
-        MongoClient mongodb = null;
+        Mongo mongodb = null;
         try {
-            mongodb = new MongoClient();
+            mongodb = new Mongo();
         } catch (UnknownHostException e) {
             e.printStackTrace();
             System.exit(0);

@@ -17,7 +17,7 @@ public class ControllerTest {
 
 	@Test
 	public void testExecute() {
-		controller.Execute("/home/artur/rnd/data/govdocs_subset", "src/test/resources/");
+	//	controller.Execute("/home/artur/rnd/data/govdocs_subset", "src/test/resources/");
         //controller.latticeManager.clear();
         // /home/artur/rnd/data/fits/produced
         // /src/test/resources
@@ -31,9 +31,9 @@ public class ControllerTest {
 
     @Test
     public void testApplyFilter() {
-        Filter f=new Filter();
-        f.addFilterCondition(new FilterCondition("format", "Portable Document Format"));
-        controller.applyFilter(f);
+     //   Filter f=new Filter();
+     //   f.addFilterCondition(new FilterCondition("format", "Portable Document Format"));
+     //   controller.applyFilter(f);
 
     }
 

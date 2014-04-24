@@ -1,6 +1,7 @@
 package com.ifs.megaprofiler;
 
 import com.ifs.megaprofiler.core.Controller;
+
 import java.io.Console;
 
 /**
@@ -25,7 +26,9 @@ public class App {
         if (args.length == 1) {
             ctr.Execute(args[0], "");
         } else {
-            ctr.Execute(args[0], args[1]);
+          //  Filter f=new Filter();
+          //  f.addFilterCondition(new FilterCondition("format", "Portable Document Format"));
+          //  ctr.applyFilter(f);//Execute(args[0], args[1]);
         }
         String line = console.readLine();
         console.printf("I saw this line: %s", line);
